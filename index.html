@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Skaters</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #050a14; --card-bg: #090f1e; --card-border: #1a3a6b;
+    --blue: #2563eb; --blue-dark: #1d4ed8; --red: #2563eb; --red-dark: #1d4ed8; --text: #ffffff;
+    --muted: #7a90b0; --nav-bg: #0d1a2e;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+  /* NAV */
+  nav { position: sticky; top: 12px; z-index: 100; margin: 12px 16px 0; }
+  .nav-inner { background: var(--nav-bg); border: 1px solid var(--card-border); border-radius: 50px; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
+  .nav-logo { font-weight: 700; font-size: 1rem; color: var(--text); }
+  .nav-actions { display: flex; gap: 8px; }
+  .nav-btn { background: #0d1a2e; border: 1px solid var(--card-border); border-radius: 50px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text); transition: background 0.2s; }
+  .nav-btn:hover { background: var(--card-border); }
+  .nav-btn.cart { background: var(--blue-dark); }
+
+  /* FILTERS */
+  .filters { padding: 20px 16px 8px; display: flex; gap: 8px; }
+  .filter-tab { display: flex; align-items: center; gap: 6px; background: #1a0a0a; border: 1px solid #1a3060; border-radius: 50px; padding: 6px 16px; font-size: 0.8rem; color: var(--muted); cursor: pointer; }
+  .filter-tab.active { border-color: var(--blue); color: var(--text); }
+
+  /* PRODUCTS */
+  .products { padding: 8px 16px 32px; display: flex; flex-direction: column; gap: 16px; }
+  .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; overflow: hidden; transition: transform 0.2s; }
+  .card:hover { transform: translateY(-2px); }
+  .card-banner { position: relative; background: repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(0,40,120,0.25) 6px, rgba(0,40,120,0.25) 7px), linear-gradient(180deg, #0a1628 0%, #050a14 100%); min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 16px 16px; gap: 12px; }
+  .card-watermark { position: absolute; top: 10px; right: 12px; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.12em; color: rgba(255,255,255,0.25); text-transform: uppercase; }
+  .brand-logo { background: white; border-radius: 8px; padding: 8px 18px; display: flex; align-items: center; justify-content: center; max-width: 200px; min-height: 52px; }
+  .brand-logo.payback-style { background: #2255c8; border-radius: 10px; padding: 10px 20px; }
+  .brand-logo.payback-style span { color: white; font-weight: 900; font-size: 1.3rem; letter-spacing: 0.06em; display: flex; align-items: center; gap: 8px; }
+  .payback-dots { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+  .payback-dots span { width: 11px; height: 11px; border: 2px solid white; border-radius: 50%; display: block; }
+  .payback-dots span.filled { background: white; }
+  .brand-paypal { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; }
+  .card-tag { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 50px; padding: 4px 14px; font-size: 0.72rem; font-weight: 700; color: white; letter-spacing: 0.08em; text-transform: uppercase; }
+  .card-body { padding: 16px; }
+  .in-stock { color: var(--blue); font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; }
+  .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+  .card-price { display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px; }
+  .price-label { color: var(--muted); font-size: 0.85rem; }
+  .price-value { font-size: 1.05rem; font-weight: 700; }
+  .btn-purchase { background: var(--blue); color: white; border: none; border-radius: 50px; padding: 10px 26px; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+  .btn-purchase:hover { background: #c02020; }
+
+  /* FAQ */
+  .faq-section { padding: 24px 16px; border-top: 1px solid #0d1e38; }
+  .faq-heading { text-align: center; font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
+  .faq-sub { text-align: center; color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; }
+  .faq-item { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; margin-bottom: 10px; overflow: hidden; }
+  .faq-item.open { border-color: var(--blue); }
+  .faq-question { display: flex; align-items: center; justify-content: space-between; padding: 16px; cursor: pointer; font-size: 0.9rem; font-weight: 500; gap: 12px; user-select: none; }
+  .faq-chevron { color: var(--blue); font-size: 1.1rem; transition: transform 0.3s; flex-shrink: 0; }
+  .faq-item.open .faq-chevron { transform: rotate(180deg); }
+  .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s; font-size: 0.85rem; color: var(--muted); line-height: 1.6; padding: 0 16px; }
+  .faq-item.open .faq-answer { max-height: 200px; padding: 0 16px 16px; }
+
+  /* SUPPORT FORM */
+  .support-section { padding: 24px 16px 0; border-top: 1px solid #0d1e38; }
+  .support-section h2 { text-align:center; font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; }
+  .support-section p { text-align:center; color: var(--muted); font-size: 0.85rem; line-height: 1.6; margin-bottom: 24px; }
+  .support-form { display:flex; flex-direction:column; gap:0; }
+  .support-field { margin-bottom:16px; }
+  .support-label { display:block; font-size:0.8rem; color:var(--muted); margin-bottom:6px; font-weight:500; }
+  .support-input { width:100%; background:#090f1e; border:1px solid var(--card-border); border-radius:12px; padding:14px 16px; color:var(--text); font-size:0.88rem; outline:none; font-family:inherit; }
+  .support-input::placeholder { color:#444; }
+  .support-input:focus { border-color:var(--blue); }
+  .support-textarea { width:100%; background:#090f1e; border:1px solid var(--card-border); border-radius:12px; padding:14px 16px; color:var(--text); font-size:0.88rem; outline:none; font-family:inherit; resize:none; min-height:120px; line-height:1.6; }
+  .support-textarea::placeholder { color:#444; }
+  .support-textarea:focus { border-color:var(--blue); }
+  .msg-count { text-align:right; font-size:0.75rem; color:var(--muted); margin-top:6px; }
+  .upload-zone { background:#090f1e; border:2px dashed var(--card-border); border-radius:14px; padding:28px 16px; text-align:center; cursor:pointer; transition:border-color 0.2s; }
+  .upload-zone:hover, .upload-zone.drag-over { border-color:var(--blue); }
+  .upload-zone p { font-size:0.88rem; color:var(--text); margin:10px 0 4px; }
+  .upload-zone small { font-size:0.75rem; color:var(--muted); }
+  .upload-thumb { width:60px; height:60px; border-radius:8px; object-fit:cover; border:1px solid var(--card-border); }
+  .btn-submit { width:100%; background:var(--blue-dark); color:#aaa; border:none; border-radius:50px; padding:14px; font-size:0.95rem; font-weight:700; cursor:pointer; margin-top:4px; margin-bottom:32px; transition:background 0.2s, color 0.2s; }
+  .btn-submit:hover { background:var(--blue); color:white; }
+
+  /* FOOTER */
+  footer { text-align:center; padding:20px 16px 32px; font-size:0.78rem; color:#444; border-top:1px solid #0a1220; }
+
+  /* SIDE MENU */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  .overlay.open { opacity: 1; pointer-events: all; }
+  .side-menu { position: fixed; top: 0; right: 0; bottom: 0; width: 75%; max-width: 300px; background: #080e1c; border-left: 1px solid #0d1a2e; z-index: 201; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; padding: 24px 24px 32px; }
+  .side-menu.open { transform: translateX(0); }
+  .side-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid var(--blue); }
+  .side-logo { font-size: 1.1rem; font-weight: 800; color: var(--blue); }
+  .side-close { background: none; border: none; color: var(--muted); font-size: 1.4rem; cursor: pointer; }
+  .side-links { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 32px; text-align: center; }
+  .side-links a { color: var(--muted); text-decoration: none; font-size: 1rem; font-weight: 500; }
+  .side-footer { border-top: 1px solid #0d2040; padding-top: 20px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  .btn-login { width: 100%; background: transparent; border: 1px solid #1a3060; color: var(--text); border-radius: 50px; padding: 12px; font-weight: 600; cursor: pointer; }
+  .side-or { color: var(--muted); font-size: 0.8rem; }
+  .btn-create { width: 100%; background: var(--blue); border: none; color: white; border-radius: 50px; padding: 12px; font-weight: 700; cursor: pointer; }
+
+  /* ═══ MODALS ═══ */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 300; display: none; align-items: flex-start; justify-content: center; padding: 0; overflow-y: auto; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #0e0e0e; border: 1px solid var(--card-border); border-radius: 20px; width: calc(100% - 32px); max-width: 480px; margin: 16px auto; padding: 24px; position: relative; }
+  .modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--muted); font-size: 1.3rem; cursor: pointer; line-height: 1; }
+  .modal-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 20px; padding-right: 30px; line-height: 1.3; }
+
+  /* Product modal */
+  .modal-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+  .modal-desc strong { color: #ccc; font-weight: 600; }
+  .modal-desc a { color: var(--blue); text-decoration: none; }
+  .variant-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .variant-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
+  .variant-selector { background: #0a1220; border: 1px solid #1a3060; border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.88rem; font-weight: 500; position: relative; }
+  .variant-selector .chevron { color: var(--muted); transition: transform 0.2s; }
+  .variant-selector.open .chevron { transform: rotate(180deg); }
+  .variant-dropdown { background: #0a1220; border: 1px solid var(--card-border); border-radius: 10px; margin-top: 6px; overflow: hidden; display: none; max-height: 220px; overflow-y: auto; }
+  .variant-dropdown.open { display: block; }
+  .variant-option { padding: 12px 14px; cursor: pointer; border-bottom: 1px solid #0d1a2e; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .variant-option:last-child { border-bottom: none; }
+  .variant-option:hover { background: #0d1e38; }
+  .variant-option.selected { background: #0d1e38; }
+  .variant-opt-name { font-size: 0.85rem; font-weight: 500; }
+  .variant-opt-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+  .variant-opt-price { font-size: 0.85rem; font-weight: 700; color: var(--text); white-space: nowrap; text-align: right; }
+  .variant-opt-price small { display: block; font-size: 0.7rem; color: var(--muted); font-weight: 400; }
+  .qty-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; margin-top: 14px; }
+  .qty-row { display: flex; align-items: center; gap: 0; background: #0a1220; border: 1px solid #1a3060; border-radius: 10px; overflow: hidden; }
+  .qty-btn { background: none; border: none; color: var(--text); font-size: 1.3rem; padding: 10px 18px; cursor: pointer; transition: background 0.15s; }
+  .qty-btn:hover { background: #0d1e38; }
+  .qty-val { flex: 1; text-align: center; font-size: 1rem; font-weight: 600; }
+  .avail-total { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-top: 10px; }
+  .avail-total span:last-child { color: var(--text); font-weight: 600; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .btn-buy-now { flex: 1; background: var(--blue); color: white; border: none; border-radius: 50px; padding: 13px; font-size: 0.92rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-add-cart { flex: 1; background: #0d1e38; color: var(--text); border: 1px solid #1a3060; border-radius: 50px; padding: 13px; font-size: 0.92rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+  /* Checkout modal */
+  .checkout-item { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 20px; }
+  .checkout-thumb { width: 60px; height: 60px; border-radius: 10px; overflow: hidden; flex-shrink: 0; background: var(--card-bg); border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; }
+  .checkout-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .checkout-item-info { flex: 1; font-size: 0.85rem; line-height: 1.5; }
+  .checkout-item-qty { font-size: 0.8rem; background: var(--blue-dark); border-radius: 6px; padding: 2px 8px; font-weight: 700; white-space: nowrap; }
+  .discount-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .discount-input { flex: 1; background: #0a1220; border: 1px solid #1a3060; border-radius: 50px; padding: 11px 16px; color: var(--text); font-size: 0.85rem; outline: none; }
+  .discount-input::placeholder { color: #444; }
+  .btn-apply { background: #0d1e38; border: 1px solid #1a3060; color: var(--muted); border-radius: 50px; padding: 11px 20px; font-size: 0.85rem; cursor: pointer; }
+  .price-breakdown { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; margin-bottom: 20px; }
+  .price-row { display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 10px; color: var(--muted); }
+  .price-row.total { color: var(--text); font-weight: 700; font-size: 0.95rem; margin-bottom: 0; }
+  .divider { border: none; border-top: 1px solid var(--card-border); margin: 20px 0; }
+  .field-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; }
+  .field-input { width: 100%; background: #0a1220; border: 1px solid #1a3060; border-radius: 12px; padding: 13px 16px; color: var(--text); font-size: 0.88rem; outline: none; margin-bottom: 20px; }
+  .field-input::placeholder { color: #444; }
+  .field-input:focus { border-color: var(--blue); }
+  .pay-method-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 10px; }
+  .pay-option { background: #0a1220; border: 1px solid #1a3060; border-radius: 14px; padding: 14px 16px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: border-color 0.2s; }
+  .pay-option.selected { border-color: var(--blue); }
+  .pay-option-label { font-size: 0.9rem; font-weight: 600; color: var(--blue); }
+  .pay-icons { display: flex; gap: 6px; align-items: center; }
+  .crypto-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; }
+  .btn-checkout { width: 100%; background: #1a3060; color: #777; border: none; border-radius: 50px; padding: 14px; font-size: 0.95rem; font-weight: 700; cursor: not-allowed; margin-top: 16px; transition: all 0.2s; }
+  .btn-checkout.active { background: var(--blue); color: white; cursor: pointer; }
+  .ssl-note { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: var(--muted); margin-top: 12px; }
+
+  /* Order confirmation */
+  .order-id { font-size: 0.75rem; color: var(--muted); margin-bottom: 20px; word-break: break-all; }
+  .track-btn { width: 100%; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); border-radius: 14px; padding: 16px; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .btn-pay-now { width: 100%; background: #ddd; color: #1a3060; border: none; border-radius: 50px; padding: 14px; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin-bottom: 20px; }
+  .order-detail-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #0a1220; font-size: 0.85rem; }
+  .order-detail-row .od-label { color: var(--muted); }
+  .order-detail-row .od-val { font-weight: 500; text-align: right; max-width: 60%; word-break: break-all; }
+  .charge-id-row { display: flex; align-items: center; gap: 8px; }
+  .copy-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; }
+
+  /* Crypto payment page */
+  .crypto-page { background: #f5f5f5; color: #111; border-radius: 20px; }
+  .crypto-header { background: white; border-radius: 20px 20px 0 0; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+  .crypto-header-left { font-size: 0.88rem; color: #1a3060; }
+  .crypto-timer { font-size: 0.88rem; color: #555; font-weight: 600; }
+  .crypto-body { padding: 20px; }
+  .crypto-email-label { font-size: 0.85rem; color: #555; margin-bottom: 6px; }
+  .crypto-email-input { width: 100%; background: white; border: 1px solid #ddd; border-radius: 10px; padding: 12px 14px; font-size: 0.88rem; color: #111; outline: none; margin-bottom: 20px; }
+  .crypto-method-label { font-size: 0.85rem; color: #555; margin-bottom: 10px; }
+  .crypto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .crypto-opt { background: white; border: 1.5px solid #e0e0e0; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.88rem; font-weight: 500; color: #111; transition: border-color 0.2s; }
+  .crypto-opt.selected { border-color: #2563eb; }
+  .crypto-opt .ci { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; flex-shrink: 0; }
+  .crypto-hint { font-size: 0.78rem; color: #888; margin-bottom: 20px; }
+  .crypto-hint a { color: #4a6cf7; }
+  .btn-continue-pay { width: 100%; background: #2563eb; color: white; border: none; border-radius: 50px; padding: 14px; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
+  .crypto-secure { font-size: 0.75rem; color: #aaa; text-align: center; }
+  .crypto-footer { padding: 12px 20px; background: #eee; border-radius: 0 0 20px 20px; font-size: 0.75rem; color: #999; text-align: center; }
+
+  /* QR page */
+  .qr-body { padding: 20px; }
+  .qr-instruction { font-size: 0.85rem; color: #555; margin-bottom: 20px; line-height: 1.5; }
+  .qr-code { width: 200px; height: 200px; margin: 0 auto 20px; display: block; }
+  .qr-info-row { background: white; border: 1px solid #ddd; border-radius: 12px; padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .qr-info-label { font-size: 0.75rem; color: #888; margin-bottom: 4px; }
+  .qr-info-val { font-size: 0.88rem; font-weight: 600; color: #111; word-break: break-all; }
+  .qr-copy { background: none; border: none; cursor: pointer; color: #888; font-size: 1.1rem; flex-shrink: 0; }
+  .qr-network-icon { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; margin-right: 6px; vertical-align: middle; }
+  .qr-warning { font-size: 0.75rem; color: #888; margin-top: 10px; }
+  .qr-warning a { color: #4a6cf7; }
+
+  /* ── ADMIN PANEL ── */
+  .admin-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:500;display:none;overflow-y:auto; }
+  .admin-overlay.open { display:block; }
+  .admin-wrap { max-width:480px;margin:0 auto;padding:20px 16px 60px; }
+  .admin-header { display:flex;align-items:center;justify-content:space-between;padding:16px 0 20px;border-bottom:1px solid #1a3a6b;margin-bottom:24px; }
+  .admin-title { font-size:1.2rem;font-weight:800;color:#2563eb; }
+  .admin-close { background:none;border:1px solid #1a3a6b;color:#7a90b0;border-radius:50px;padding:6px 14px;cursor:pointer;font-size:0.85rem; }
+  .admin-section { margin-bottom:28px; }
+  .admin-section-title { font-size:0.75rem;font-weight:700;color:#7a90b0;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #0d2040; }
+  .admin-product { background:#090f1e;border:1px solid #1a3a6b;border-radius:14px;padding:16px;margin-bottom:10px; }
+  .admin-product-name { font-size:0.92rem;font-weight:700;margin-bottom:12px;color:#fff; }
+  .admin-variant-row { display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #0d2040; }
+  .admin-variant-row:last-child { border-bottom:none; }
+  .admin-variant-info { flex:1; }
+  .admin-variant-name { font-size:0.82rem;font-weight:500;color:#fff; }
+  .admin-variant-price { font-size:0.75rem;color:#7a90b0;margin-top:2px; }
+  .admin-stock-input { width:70px;background:#050a14;border:1px solid #1a3a6b;border-radius:8px;padding:6px 10px;color:#fff;font-size:0.82rem;text-align:center;outline:none; }
+  .admin-stock-input:focus { border-color:#2563eb; }
+  .admin-toggle-wrap { display:flex;align-items:center;gap:8px;margin-left:10px; }
+  .admin-toggle { position:relative;width:44px;height:24px;cursor:pointer; }
+  .admin-toggle input { opacity:0;width:0;height:0; }
+  .admin-slider { position:absolute;inset:0;border-radius:24px;background:#1a3a6b;transition:0.2s; }
+  .admin-slider:before { content:'';position:absolute;left:2px;top:2px;width:20px;height:20px;border-radius:50%;background:white;transition:0.2s; }
+  .admin-toggle input:checked + .admin-slider { background:#2563eb; }
+  .admin-toggle input:checked + .admin-slider:before { left:22px; }
+  .admin-save-btn { width:100%;background:#2563eb;border:none;color:white;border-radius:50px;padding:14px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-top:20px; }
+  .admin-save-btn:hover { background:#1d4ed8; }
+  .admin-orders { background:#090f1e;border:1px solid #1a3a6b;border-radius:14px;overflow:hidden; }
+  .admin-order-row { padding:14px 16px;border-bottom:1px solid #0d2040;font-size:0.82rem; }
+  .admin-order-row:last-child { border-bottom:none; }
+  .admin-order-id { color:#7a90b0;font-size:0.72rem;margin-bottom:4px; }
+  .admin-order-detail { display:flex;justify-content:space-between;align-items:center; }
+  .admin-order-product { color:#fff;font-weight:600; }
+  .admin-order-status { font-size:0.72rem;padding:3px 10px;border-radius:20px;font-weight:600; }
+  .admin-order-status.completed { background:#0a2010;color:#4caf50;border:1px solid #1a5020; }
+  .admin-order-status.processing { background:#0a1628;color:#2563eb;border:1px solid #1a3a6b; }
+  .admin-order-status.failed { background:#1a0808;color:#e03030;border:1px solid #3a1010; }
+  .admin-order-email { color:#7a90b0;font-size:0.75rem;margin-top:4px; }
+  .admin-empty { text-align:center;color:#7a90b0;font-size:0.85rem;padding:24px; }
+
+  /* Login screen */
+  .admin-login { position:fixed;inset:0;background:#050a14;z-index:600;display:none;align-items:center;justify-content:center;padding:20px; }
+  .admin-login.open { display:flex; }
+  .admin-login-box { background:#090f1e;border:1px solid #1a3a6b;border-radius:20px;padding:32px 24px;width:100%;max-width:360px;text-align:center; }
+  .admin-login-logo { font-size:1.4rem;font-weight:900;color:#2563eb;margin-bottom:4px; }
+  .admin-login-sub { color:#7a90b0;font-size:0.82rem;margin-bottom:24px; }
+  .admin-login-input { width:100%;background:#050a14;border:1px solid #1a3a6b;border-radius:12px;padding:14px 16px;color:#fff;font-size:0.92rem;outline:none;margin-bottom:12px;font-family:inherit; }
+  .admin-login-input:focus { border-color:#2563eb; }
+  .admin-login-btn { width:100%;background:#2563eb;border:none;color:white;border-radius:50px;padding:14px;font-size:0.95rem;font-weight:700;cursor:pointer; }
+  .admin-login-error { color:#e03030;font-size:0.82rem;margin-top:8px;display:none; }
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <span class="nav-logo">Skaters</span>
+    <div class="nav-actions">
+      <button class="nav-btn cart">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      </button>
+      <button class="nav-btn" onclick="openMenu()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- FILTER -->
+<div class="filters">
+  <div class="filter-tab active">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    ALL
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<div class="products">
+  <!-- Zalando -->
+  <div class="card">
+    <div class="card-banner">
+      <span class="card-watermark">FUHRER</span>
+      <div class="brand-logo">
+        <svg width="140" height="36" viewBox="0 0 140 36"><polygon points="0,18 14,0 14,36" fill="#FF6900"/><text x="22" y="26" font-family="Arial" font-size="22" font-weight="700" fill="#111">zalando</text></svg>
+      </div>
+      <div class="card-tag">WARRANTY | 100% ORDERS</div>
+    </div>
+    <div class="card-body">
+      <p class="in-stock">In Stock</p>
+      <p class="card-title">Zalando.de 100% Orders / Balance</p>
+      <div class="card-price"><span class="price-label">Price</span><span class="price-value">€3.60</span></div>
+      <button class="btn-purchase" onclick="openProductModal()">Purchase</button>
+    </div>
+  </div>
+  <!-- PayPal -->
+  <div class="card">
+    <div class="card-banner">
+      <span class="card-watermark">FUHRER</span>
+      <div class="brand-paypal">
+        <svg viewBox="0 0 60 60" fill="none" width="60" height="60"><path d="M45 16c0 8-6 14-14 14H24l-3 18H13L20 8h16c5 0 9 3.6 9 8z" fill="#009cde"/><path d="M49 10C49 18 43 24 35 24H25l-3 18H14L21 2h16c6 0 12 3.5 12 8z" fill="#012169"/><path d="M25 24h10c8 0 14-6 14-14 0 4-3 8-8 10L35 24H25z" fill="#003087"/></svg>
+      </div>
+      <div class="card-tag">WARRANTY | CC | BANK</div>
+    </div>
+    <div class="card-body">
+      <p class="in-stock">In Stock</p>
+      <p class="card-title">FuhrerPals</p>
+      <div class="card-price"><span class="price-label">Price</span><span class="price-value">€3.75</span></div>
+      <button class="btn-purchase" onclick="openPayPalModal()">Purchase</button>
+    </div>
+  </div>
+  <!-- Payback -->
+  <div class="card">
+    <div class="card-banner">
+      <span class="card-watermark">FUHRER</span>
+      <div class="brand-logo payback-style">
+        <span>PAYBACK<div class="payback-dots"><span></span><span class="filled"></span><span></span><span></span></div></span>
+      </div>
+      <div class="card-tag">WARRANTY | 100% POINTS</div>
+    </div>
+    <div class="card-body">
+      <p class="in-stock">In Stock</p>
+      <p class="card-title" onclick="adminTap()" style="cursor:default;">Payback.de W/Points</p>
+      <div class="card-price"><span class="price-label">Price</span><span class="price-value">€4.17</span></div>
+      <button class="btn-purchase" onclick="openPaybackModal()">Purchase</button>
+    </div>
+  </div>
+  <!-- GMX -->
+  <div class="card">
+    <div class="card-banner">
+      <span class="card-watermark">FUHRER</span>
+      <div class="brand-logo">
+        <svg width="120" height="36" viewBox="0 0 120 36"><rect width="120" height="36" rx="4" fill="#1d3566"/><text x="10" y="26" font-family="Arial" font-size="20" font-weight="900" fill="white">GMX</text><text x="68" y="26" font-family="Arial" font-size="14" fill="#aac4ff">mail</text></svg>
+      </div>
+      <div class="card-tag">FULL ACCESS</div>
+    </div>
+    <div class="card-body">
+      <p class="in-stock">In Stock</p>
+      <p class="card-title">GMX FA</p>
+      <div class="card-price"><span class="price-label">Price</span><span class="price-value">€4.00</span></div>
+      <button class="btn-purchase" onclick="openGMXModal()">Purchase</button>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-section">
+  <h2 class="faq-heading">Frequently asked questions</h2>
+  <p class="faq-sub">Find quick answers to common questions.</p>
+  <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-question"><span>How do I log in to my account?</span><span class="faq-chevron">⌄</span></div><div class="faq-answer">Click the "Login" button at the top of the site and enter your registered email address. A 6-digit code will be sent to your inbox within seconds. Enter the code on the site to access your account.</div></div>
+  <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-question"><span>How do I add balance to my account?</span><span class="faq-chevron">⌄</span></div><div class="faq-answer">Once you're logged in, visit your customer dashboard and go to the "Account Balance" section, then select "Add Balance." You'll be able to choose from several payment methods including credit or debit card, cryptocurrency, or manual bank transfer.</div></div>
+  <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-question"><span>How do I view available product stock?</span><span class="faq-chevron">⌄</span></div><div class="faq-answer">To view stock availability, click on any product to open its popup window. Each variant will display the number of stock currently available. If a particular variant is sold out, it will be disabled. Stock availability is shown in real-time.</div></div>
+  <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-question"><span>How do I purchase a product?</span><span class="faq-chevron">⌄</span></div><div class="faq-answer">Click on any product to open its popup, select the variant, then tap "Buy Now" to go straight to checkout or "Add to Cart" if you plan to continue shopping. At checkout, you'll select a payment type and complete your order.</div></div>
+  <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-question"><span>How do I create an account?</span><span class="faq-chevron">⌄</span></div><div class="faq-answer">Click the "Create Account" button at the top of the page and enter your email address. We'll send a 6-digit verification code to your inbox to confirm your email belongs to you. After entering the code on the site, your account will be created right away.</div></div>
+  <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-question"><span>How can I withdraw my balance?</span><span class="faq-chevron">⌄</span></div><div class="faq-answer">Balance withdrawals are not supported. By making a purchase, you agree to this policy.</div></div>
+  <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-question"><span>How can I request a refund or replacement?</span><span class="faq-chevron">⌄</span></div><div class="faq-answer">To request a refund or replacement, please submit a ticket and include proof of your issue. Refunds are issued only as site balance. By making a purchase, you agree to these terms.</div></div>
+</div>
+
+<!-- SUPPORT -->
+<div class="support-section">
+  <h2>Support</h2>
+  <p>You can expect a response within 24-48 hours once you submit your ticket.</p>
+
+  <div class="support-form">
+    <div class="support-field">
+      <label class="support-label">Title</label>
+      <input class="support-input" type="text" placeholder="Product replacement request" />
+    </div>
+    <div class="support-field">
+      <label class="support-label">E-mail</label>
+      <input class="support-input" type="email" placeholder="your@email.com" />
+    </div>
+    <div class="support-field">
+      <label class="support-label">Order ID</label>
+      <input class="support-input" type="text" placeholder="00000000-0000-0000-0000-000000000000" />
+    </div>
+    <div class="support-field">
+      <label class="support-label">Message</label>
+      <textarea class="support-textarea" id="supportMessage" maxlength="400" placeholder="How can we help you today? For the best possible support response, please detail your message here." oninput="updateMsgCount()"></textarea>
+      <div class="msg-count"><span id="msgCount">0</span>/400</div>
+    </div>
+    <div class="support-field">
+      <label class="support-label">Images</label>
+      <div class="upload-zone" onclick="document.getElementById('fileInput').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleDrop(event)">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+        <p>Drop your images here, or <span style="color:var(--blue);font-weight:600;">tap to browse</span></p>
+        <small>Maximum of 10MB per image</small>
+        <div id="uploadedFiles" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;"></div>
+        <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handleFileSelect(this)" />
+      </div>
+    </div>
+    <button class="btn-submit" onclick="submitSupport()">Submit</button>
+    <div id="submitSuccess" style="display:none;text-align:center;color:#4caf50;font-size:0.88rem;margin-top:12px;padding:12px;background:#0a2010;border-radius:10px;border:1px solid #1a5020;">
+      ✓ Your ticket has been submitted! We'll respond within 24-48 hours.
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer id="adminFooter" style="cursor:default;user-select:none;">© 2026 Skaters. All rights reserved</footer>
+
+<!-- SIDE MENU OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+<div class="side-menu" id="sideMenu">
+  <div class="side-header"><span class="side-logo">Skaters</span><button class="side-close" onclick="closeMenu()">✕</button></div>
+  <div class="side-links"><a href="#">Home</a><a href="#">Faq</a><a href="#">Support</a></div>
+  <div class="side-footer"><button class="btn-login">Login</button><span class="side-or">or</span><button class="btn-create">Create Account</button></div>
+  <div style="text-align:center;margin-top:16px;">
+    <button onclick="openAdminLogin()" style="background:none;border:none;color:#1a3a6b;font-size:0.75rem;cursor:pointer;padding:10px;letter-spacing:4px;">· · ·</button>
+  </div>
+</div>
+
+<!-- ═══ GMX MODAL 1: PRODUCT ═══ -->
+<div class="modal-overlay" id="modalGMX">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalGMX')">✕</button>
+    <h2 class="modal-title">GMX FA</h2>
+    <div class="modal-desc">Idk fuck ass niggas use a proper ip for login ig</div>
+    <div class="variant-box">
+      <div class="variant-label">Variant</div>
+      <div class="variant-selector open">
+        <span>GMX FA</span>
+        <span class="chevron" style="transform:rotate(180deg)">⌄</span>
+      </div>
+      <div class="variant-dropdown open">
+        <div class="variant-option selected">
+          <div><div class="variant-opt-name">GMX FA</div><div class="variant-opt-sub">Stock: 1</div></div>
+          <div class="variant-opt-price">Price<br><small>€4.00</small></div>
+        </div>
+      </div>
+      <div class="qty-label">Quantity</div>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="changeGMXQty(-1)">−</button>
+        <span class="qty-val" id="gmxQtyVal">1</span>
+        <button class="qty-btn" onclick="changeGMXQty(1)">+</button>
+      </div>
+      <div class="avail-total">
+        <span>Available: <strong>1</strong></span>
+        <span>Total: <strong id="gmxTotalPrice">€4.00</strong></span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-buy-now" onclick="goToGMXCheckout()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        Buy Now
+      </button>
+      <button class="btn-add-cart">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Add to Cart
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GMX MODAL 2: CHECKOUT ═══ -->
+<div class="modal-overlay" id="modalGMXCheckout">
+  <div class="modal">
+    <h2 class="modal-title">Checkout</h2>
+    <div class="checkout-item">
+      <div class="checkout-thumb" style="background:#1d3566;display:flex;align-items:center;justify-content:center;">
+        <span style="color:white;font-weight:900;font-size:0.65rem;letter-spacing:0.05em;">GMX</span>
+      </div>
+      <div class="checkout-item-info" id="gmxCheckoutItemName">GMX FA</div>
+      <span class="checkout-item-qty" id="gmxCheckoutQtyBadge">1x</span>
+    </div>
+    <div class="discount-row">
+      <input class="discount-input" type="text" placeholder="Enter a discount code" />
+      <button class="btn-apply">Apply</button>
+    </div>
+    <div class="price-breakdown">
+      <div class="price-row"><span>Subtotal</span><span id="gmxCheckoutSubtotal">€4.00</span></div>
+      <div class="price-row"><span>Platform Fee ⓘ</span><span id="gmxCheckoutFee">€0.36</span></div>
+      <div class="price-row total"><span>Total Due</span><span id="gmxCheckoutTotal">€4.36</span></div>
+    </div>
+    <hr class="divider">
+    <div class="field-label">Email Address</div>
+    <input class="field-input" type="email" id="gmxCheckoutEmail" placeholder="your@email.com" oninput="updateGMXCheckoutBtn()" />
+    <div class="pay-method-label">Select Payment Method</div>
+    <div class="pay-option selected">
+      <div class="pay-option-label">Cryptocurrency</div>
+      <div class="pay-icons">
+        <div class="crypto-icon" style="background:#f7931a">₿</div>
+        <div class="crypto-icon" style="background:#627eea;color:white">Ξ</div>
+        <div class="crypto-icon" style="background:#9945ff;color:white">◎</div>
+      </div>
+    </div>
+    <button class="btn-checkout" id="gmxBtnCheckout" onclick="goToGMXOrder()">Continue to Checkout</button>
+    <div class="ssl-note">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Your data is secured by extended validation SSL certificates (256-bit encryption).
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GMX MODAL 3: ORDER ═══ -->
+<div class="modal-overlay" id="modalGMXOrder">
+  <div class="modal">
+    <h2 class="modal-title">Order Confirmation</h2>
+    <div class="order-id" id="gmxOrderIdText"></div>
+    <div class="checkout-item">
+      <div class="checkout-thumb" style="background:#1d3566;display:flex;align-items:center;justify-content:center;">
+        <span style="color:white;font-weight:900;font-size:0.65rem;">GMX</span>
+      </div>
+      <div class="checkout-item-info">GMX FA</div>
+      <span class="checkout-item-qty" id="gmxOrderQtyBadge"></span>
+    </div>
+    <div class="price-breakdown">
+      <div class="price-row total"><span>Total Due</span><span id="gmxOrderTotal"></span></div>
+    </div>
+    <button class="track-btn">Track Payment <span>›</span></button>
+    <button class="btn-pay-now" onclick="goToGMXCrypto()">Pay Now</button>
+    <div class="order-detail-row"><span class="od-label">Last Updated</span><span class="od-val" id="gmxOrderDate"></span></div>
+    <div class="order-detail-row"><span class="od-label">Payment Type</span><span class="od-val">Cryptocurrency</span></div>
+    <div class="order-detail-row"><span class="od-label">Email</span><span class="od-val" id="gmxOrderEmail"></span></div>
+    <div class="order-detail-row"><span class="od-label">Charge ID</span><div class="od-val"><div class="charge-id-row"><span id="gmxChargeId"></span><button class="copy-btn" onclick="copyText(document.getElementById('gmxChargeId').textContent)">⧉</button></div></div></div>
+  </div>
+</div>
+
+<!-- ═══ GMX MODAL 4: CRYPTO ═══ -->
+<div class="modal-overlay" id="modalGMXCrypto">
+  <div class="modal crypto-page">
+    <div class="crypto-header">
+      <div class="crypto-header-left">Pay <strong id="gmxCryptoAmount"></strong> to Skaters ⓘ</div>
+      <div class="crypto-timer">00:30:00</div>
+    </div>
+    <div class="crypto-body">
+      <div class="crypto-email-label">Enter your email address</div>
+      <input class="crypto-email-input" type="email" id="gmxCryptoEmailDisplay" readonly />
+      <div class="crypto-method-label">Select payment method</div>
+      <div class="crypto-grid">
+        <div class="crypto-opt" onclick="selectCrypto(this,'bitcoin')"><div class="ci" style="background:#f7931a;color:white">₿</div> Bitcoin</div>
+        <div class="crypto-opt" onclick="selectCrypto(this,'ethereum')"><div class="ci" style="background:#627eea;color:white">Ξ</div> Ethereum</div>
+        <div class="crypto-opt selected" onclick="selectCrypto(this,'solana')"><div class="ci" style="background:#9945ff;color:white">◎</div> Solana</div>
+      </div>
+      <div class="crypto-hint">Not sure how to pay with crypto? <a href="#">Learn more.</a></div>
+      <button class="btn-continue-pay" onclick="goToGMXQR()">Continue to Payment</button>
+      <div class="crypto-secure">To keep your payment secure and accurate, we recommend not changing any of the pre-filled information.</div>
+    </div>
+    <div class="crypto-footer">Secured by Fuhrerlogs.</div>
+  </div>
+</div>
+
+<!-- ═══ GMX MODAL 5: QR ═══ -->
+<div class="modal-overlay" id="modalGMXQR">
+  <div class="modal crypto-page">
+    <div class="crypto-header">
+      <div class="crypto-header-left">Pay <strong id="gmxQrAmount"></strong> to Skaters ⓘ</div>
+      <div class="crypto-timer">00:29:32</div>
+    </div>
+    <div class="qr-body">
+      <div class="qr-instruction">Open your crypto wallet and scan the QR code, or copy the address below to manually send the payment.</div>
+      <canvas id="gmxQrCanvas" class="qr-code" width="200" height="200"></canvas>
+      <div class="qr-info-row">
+        <div><div class="qr-info-label">Total Amount</div><div class="qr-info-val" id="gmxQrCryptoAmount"></div></div>
+        <button class="qr-copy" onclick="copyText(document.getElementById('gmxQrCryptoAmount').textContent)">⧉</button>
+      </div>
+      <div class="qr-info-row">
+        <div><div class="qr-info-label">Network</div><div class="qr-info-val" id="gmxQrNetwork"></div></div>
+      </div>
+      <div class="qr-info-row">
+        <div><div class="qr-info-label" id="gmxQrAddrLabel">SOL Address</div><div class="qr-info-val" id="gmxQrAddress"></div></div>
+        <button class="qr-copy" onclick="copyText(document.getElementById('gmxQrAddress').textContent)">⧉</button>
+      </div>
+      <div class="qr-warning">Transactions sent from an exchange might fail. <a href="#" style="color:#2563eb">Here's why.</a></div>
+    </div>
+    <div class="crypto-footer">Secured by Fuhrerlogs.</div>
+  </div>
+</div>
+
+<!-- ═══ ADMIN PANEL ═══ -->
+<div class="modal-overlay" id="modalAdmin">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalAdmin')">✕</button>
+    <h2 class="modal-title">🔧 Admin Panel — Payback Variants</h2>
+    <p style="font-size:0.8rem;color:var(--muted);margin-bottom:16px;">Activez ou désactivez le stock de chaque variant.</p>
+    <div id="adminVariantList"></div>
+    <button onclick="saveAdminAndClose()" style="margin-top:20px;width:100%;background:var(--blue);border:none;color:white;border-radius:50px;padding:13px;font-size:0.92rem;font-weight:700;cursor:pointer;">Sauvegarder</button>
+  </div>
+</div>
+
+<!-- ═══ PAYBACK MODAL 1: PRODUCT ═══ -->
+<div class="modal-overlay" id="modalPayback">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalPayback')">✕</button>
+    <h2 class="modal-title">Payback.de W/Points</h2>
+    <div class="modal-desc">
+      Payback Acc with Points Replacing only invalid/no points (u need to start the recording before the purchase!!!)<br><br>
+      <strong>NO VIDEO PROOF NO REPLACEMENT</strong><br>
+      Warranty: 3H<br><br>
+      UPLOAD VIDEOS TO STREAMABLE.com TO SEND PROOF IN TICKET / N PROOF NO REPLACE
+    </div>
+    <div class="variant-box">
+      <div class="variant-label">Variant</div>
+      <div class="variant-selector" id="pbVariantSelector" onclick="togglePBDropdown()">
+        <span id="pbVariantSelectedText">Payback.de (1k-2.5k Points)</span>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="variant-dropdown" id="pbVariantDropdown"></div>
+      <div class="qty-label">Quantity</div>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="changePBQty(-1)">−</button>
+        <span class="qty-val" id="pbQtyVal">5</span>
+        <button class="qty-btn" onclick="changePBQty(1)">+</button>
+      </div>
+      <div class="avail-total">
+        <span>Available: <strong id="pbAvailStock">3874</strong></span>
+        <span>Total: <strong id="pbTotalPrice">€20.85</strong></span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-buy-now" id="pbBuyNowBtn" onclick="goToPBCheckout()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        Buy Now
+      </button>
+      <button class="btn-add-cart">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Add to Cart
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAYBACK MODAL 2: CHECKOUT ═══ -->
+<div class="modal-overlay" id="modalPBCheckout">
+  <div class="modal">
+    <h2 class="modal-title">Checkout</h2>
+    <div class="checkout-item">
+      <div class="checkout-thumb" style="background:#2255c8;display:flex;align-items:center;justify-content:center;">
+        <span style="color:white;font-weight:900;font-size:0.6rem;letter-spacing:0.05em;">PAYBACK</span>
+      </div>
+      <div class="checkout-item-info" id="pbCheckoutItemName"></div>
+      <span class="checkout-item-qty" id="pbCheckoutQtyBadge"></span>
+    </div>
+    <div class="discount-row">
+      <input class="discount-input" type="text" placeholder="Enter a discount code" />
+      <button class="btn-apply">Apply</button>
+    </div>
+    <div class="price-breakdown">
+      <div class="price-row"><span>Subtotal</span><span id="pbCheckoutSubtotal"></span></div>
+      <div class="price-row"><span>Platform Fee ⓘ</span><span id="pbCheckoutFee"></span></div>
+      <div class="price-row total"><span>Total Due</span><span id="pbCheckoutTotal"></span></div>
+    </div>
+    <hr class="divider">
+    <div class="field-label">Email Address</div>
+    <input class="field-input" type="email" id="pbCheckoutEmail" placeholder="your@email.com" oninput="updatePBCheckoutBtn()" />
+    <div class="pay-method-label">Select Payment Method</div>
+    <div class="pay-option selected">
+      <div class="pay-option-label">Cryptocurrency</div>
+      <div class="pay-icons">
+        <div class="crypto-icon" style="background:#f7931a">₿</div>
+        <div class="crypto-icon" style="background:#627eea;color:white">Ξ</div>
+        <div class="crypto-icon" style="background:#9945ff;color:white">◎</div>
+      </div>
+    </div>
+    <button class="btn-checkout" id="pbBtnCheckout" onclick="goToPBOrder()">Continue to Checkout</button>
+    <div class="ssl-note">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Your data is secured by extended validation SSL certificates (256-bit encryption).
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAYBACK MODAL 3: ORDER ═══ -->
+<div class="modal-overlay" id="modalPBOrder">
+  <div class="modal">
+    <h2 class="modal-title">Order Confirmation</h2>
+    <div class="order-id" id="pbOrderIdText"></div>
+    <div class="checkout-item">
+      <div class="checkout-thumb" style="background:#2255c8;display:flex;align-items:center;justify-content:center;">
+        <span style="color:white;font-weight:900;font-size:0.6rem;">PAYBACK</span>
+      </div>
+      <div class="checkout-item-info" id="pbOrderItemName"></div>
+      <span class="checkout-item-qty" id="pbOrderQtyBadge"></span>
+    </div>
+    <div class="price-breakdown">
+      <div class="price-row total"><span>Total Due</span><span id="pbOrderTotal"></span></div>
+    </div>
+    <button class="track-btn">Track Payment <span>›</span></button>
+    <button class="btn-pay-now" onclick="goToPBCrypto()">Pay Now</button>
+    <div class="order-detail-row"><span class="od-label">Last Updated</span><span class="od-val" id="pbOrderDate"></span></div>
+    <div class="order-detail-row"><span class="od-label">Payment Type</span><span class="od-val">Cryptocurrency</span></div>
+    <div class="order-detail-row"><span class="od-label">Email</span><span class="od-val" id="pbOrderEmail"></span></div>
+    <div class="order-detail-row"><span class="od-label">Charge ID</span><div class="od-val"><div class="charge-id-row"><span id="pbChargeId"></span><button class="copy-btn" onclick="copyText(document.getElementById('pbChargeId').textContent)">⧉</button></div></div></div>
+  </div>
+</div>
+
+<!-- ═══ PAYBACK MODAL 4: CRYPTO ═══ -->
+<div class="modal-overlay" id="modalPBCrypto">
+  <div class="modal crypto-page">
+    <div class="crypto-header">
+      <div class="crypto-header-left">Pay <strong id="pbCryptoAmount"></strong> to Skaters ⓘ</div>
+      <div class="crypto-timer">00:30:00</div>
+    </div>
+    <div class="crypto-body">
+      <div class="crypto-email-label">Enter your email address</div>
+      <input class="crypto-email-input" type="email" id="pbCryptoEmailDisplay" readonly />
+      <div class="crypto-method-label">Select payment method</div>
+      <div class="crypto-grid">
+        <div class="crypto-opt" onclick="selectCrypto(this,'bitcoin')"><div class="ci" style="background:#f7931a;color:white">₿</div> Bitcoin</div>
+        <div class="crypto-opt" onclick="selectCrypto(this,'ethereum')"><div class="ci" style="background:#627eea;color:white">Ξ</div> Ethereum</div>
+        <div class="crypto-opt selected" onclick="selectCrypto(this,'solana')"><div class="ci" style="background:#9945ff;color:white">◎</div> Solana</div>
+      </div>
+      <div class="crypto-hint">Not sure how to pay with crypto? <a href="#">Learn more.</a></div>
+      <button class="btn-continue-pay" onclick="goToPBQR()">Continue to Payment</button>
+      <div class="crypto-secure">To keep your payment secure and accurate, we recommend not changing any of the pre-filled information.</div>
+    </div>
+    <div class="crypto-footer">Secured by Fuhrerlogs.</div>
+  </div>
+</div>
+
+<!-- ═══ PAYBACK MODAL 5: QR ═══ -->
+<div class="modal-overlay" id="modalPBQR">
+  <div class="modal crypto-page">
+    <div class="crypto-header">
+      <div class="crypto-header-left">Pay <strong id="pbQrAmount"></strong> to Skaters ⓘ</div>
+      <div class="crypto-timer">00:29:32</div>
+    </div>
+    <div class="qr-body">
+      <div class="qr-instruction">Open your crypto wallet and scan the QR code, or copy the address below to manually send the payment.</div>
+      <canvas id="pbQrCanvas" class="qr-code" width="200" height="200"></canvas>
+      <div class="qr-info-row">
+        <div><div class="qr-info-label">Total Amount</div><div class="qr-info-val" id="pbQrCryptoAmount"></div></div>
+        <button class="qr-copy" onclick="copyText(document.getElementById('pbQrCryptoAmount').textContent)">⧉</button>
+      </div>
+      <div class="qr-info-row">
+        <div><div class="qr-info-label">Network</div><div class="qr-info-val" id="pbQrNetwork"></div></div>
+      </div>
+      <div class="qr-info-row">
+        <div><div class="qr-info-label" id="pbQrAddrLabel">SOL Address</div><div class="qr-info-val" id="pbQrAddress"></div></div>
+        <button class="qr-copy" onclick="copyText(document.getElementById('pbQrAddress').textContent)">⧉</button>
+      </div>
+      <div class="qr-warning">Transactions sent from an exchange might fail. <a href="#" style="color:#2563eb">Here's why.</a></div>
+    </div>
+    <div class="crypto-footer">Secured by Fuhrerlogs.</div>
+  </div>
+</div>
+
+<!-- ═══ FUHRERPALS MODAL 1: PRODUCT ═══ -->
+<div class="modal-overlay" id="modalPayPal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalPayPal')">✕</button>
+    <h2 class="modal-title">FuhrerPals</h2>
+    <div class="modal-desc">
+      <strong>WAVE REPLACEMENT WARRANTY IS 20 MINUTES</strong><br>
+      Proof + Ticket = Good Support
+    </div>
+    <div class="variant-box">
+      <div class="variant-label">Variant</div>
+      <div class="variant-selector" id="ppVariantSelector" onclick="togglePPDropdown()">
+        <span id="ppVariantSelectedText">DE / Brutes</span>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="variant-dropdown" id="ppVariantDropdown"></div>
+      <div class="qty-label">Quantity</div>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="changePPQty(-1)">−</button>
+        <span class="qty-val" id="ppQtyVal">5</span>
+        <button class="qty-btn" onclick="changePPQty(1)">+</button>
+      </div>
+      <div class="avail-total">
+        <span>Available: <strong id="ppAvailStock">1000</strong></span>
+        <span>Total: <strong id="ppTotalPrice">€18.75</strong></span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-buy-now" onclick="goToPPCheckout()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        Buy Now
+      </button>
+      <button class="btn-add-cart">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Add to Cart
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FUHRERPALS MODAL 2: CHECKOUT ═══ -->
+<div class="modal-overlay" id="modalPPCheckout">
+  <div class="modal">
+    <h2 class="modal-title">Checkout</h2>
+    <div class="checkout-item">
+      <div class="checkout-thumb">
+        <svg viewBox="0 0 60 60" fill="none" width="40" height="40"><path d="M45 16c0 8-6 14-14 14H24l-3 18H13L20 8h16c5 0 9 3.6 9 8z" fill="#009cde"/><path d="M49 10C49 18 43 24 35 24H25l-3 18H14L21 2h16c6 0 12 3.5 12 8z" fill="#012169"/></svg>
+      </div>
+      <div class="checkout-item-info" id="ppCheckoutItemName">FuhrerPals (DE / Brutes)</div>
+      <span class="checkout-item-qty" id="ppCheckoutQtyBadge">5x</span>
+    </div>
+    <div class="discount-row">
+      <input class="discount-input" type="text" placeholder="Enter a discount code" />
+      <button class="btn-apply">Apply</button>
+    </div>
+    <div class="price-breakdown">
+      <div class="price-row"><span>Subtotal</span><span id="ppCheckoutSubtotal">€18.75</span></div>
+      <div class="price-row"><span>Platform Fee ⓘ</span><span id="ppCheckoutFee">€1.69</span></div>
+      <div class="price-row total"><span>Total Due</span><span id="ppCheckoutTotal">€20.44</span></div>
+    </div>
+    <hr class="divider">
+    <div class="field-label">Email Address</div>
+    <input class="field-input" type="email" id="ppCheckoutEmail" placeholder="your@email.com" oninput="updatePPCheckoutBtn()" />
+    <div class="pay-method-label">Select Payment Method</div>
+    <div class="pay-option selected">
+      <div class="pay-option-label">Cryptocurrency</div>
+      <div class="pay-icons">
+        <div class="crypto-icon" style="background:#f7931a">₿</div>
+        <div class="crypto-icon" style="background:#627eea;color:white">Ξ</div>
+        <div class="crypto-icon" style="background:#9945ff;color:white">◎</div>
+      </div>
+    </div>
+    <button class="btn-checkout" id="ppBtnCheckout" onclick="goToPPOrder()">Continue to Checkout</button>
+    <div class="ssl-note">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Your data is secured by extended validation SSL certificates (256-bit encryption).
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FUHRERPALS MODAL 3: ORDER ═══ -->
+<div class="modal-overlay" id="modalPPOrder">
+  <div class="modal">
+    <h2 class="modal-title">Order Confirmation</h2>
+    <div class="order-id" id="ppOrderIdText"></div>
+    <div class="checkout-item">
+      <div class="checkout-thumb">
+        <svg viewBox="0 0 60 60" fill="none" width="40" height="40"><path d="M45 16c0 8-6 14-14 14H24l-3 18H13L20 8h16c5 0 9 3.6 9 8z" fill="#009cde"/><path d="M49 10C49 18 43 24 35 24H25l-3 18H14L21 2h16c6 0 12 3.5 12 8z" fill="#012169"/></svg>
+      </div>
+      <div class="checkout-item-info" id="ppOrderItemName"></div>
+      <span class="checkout-item-qty" id="ppOrderQtyBadge"></span>
+    </div>
+    <div class="price-breakdown">
+      <div class="price-row total"><span>Total Due</span><span id="ppOrderTotal"></span></div>
+    </div>
+    <button class="track-btn">Track Payment <span>›</span></button>
+    <button class="btn-pay-now" onclick="goToPPCrypto()">Pay Now</button>
+    <div class="order-detail-row"><span class="od-label">Last Updated</span><span class="od-val" id="ppOrderDate"></span></div>
+    <div class="order-detail-row"><span class="od-label">Payment Type</span><span class="od-val">Cryptocurrency</span></div>
+    <div class="order-detail-row"><span class="od-label">Email</span><span class="od-val" id="ppOrderEmail"></span></div>
+    <div class="order-detail-row"><span class="od-label">Charge ID</span><div class="od-val"><div class="charge-id-row"><span id="ppChargeId"></span><button class="copy-btn" onclick="copyText(document.getElementById('ppChargeId').textContent)">⧉</button></div></div></div>
+  </div>
+</div>
+
+<!-- ═══ FUHRERPALS MODAL 4: CRYPTO ═══ -->
+<div class="modal-overlay" id="modalPPCrypto">
+  <div class="modal crypto-page">
+    <div class="crypto-header">
+      <div class="crypto-header-left">Pay <strong id="ppCryptoAmount"></strong> to Skaters ⓘ</div>
+      <div class="crypto-timer" id="ppCryptoTimer">00:30:00</div>
+    </div>
+    <div class="crypto-body">
+      <div class="crypto-email-label">Enter your email address</div>
+      <input class="crypto-email-input" type="email" id="ppCryptoEmailDisplay" readonly />
+      <div class="crypto-method-label">Select payment method</div>
+      <div class="crypto-grid">
+        <div class="crypto-opt" onclick="selectCrypto(this,'bitcoin')"><div class="ci" style="background:#f7931a;color:white">₿</div> Bitcoin</div>
+        <div class="crypto-opt" onclick="selectCrypto(this,'ethereum')"><div class="ci" style="background:#627eea;color:white">Ξ</div> Ethereum</div>
+        <div class="crypto-opt selected" onclick="selectCrypto(this,'solana')"><div class="ci" style="background:#9945ff;color:white">◎</div> Solana</div>
+      </div>
+      <div class="crypto-hint">Not sure how to pay with crypto? <a href="#">Learn more.</a></div>
+      <button class="btn-continue-pay" onclick="goToPPQR()">Continue to Payment</button>
+      <div class="crypto-secure">To keep your payment secure and accurate, we recommend not changing any of the pre-filled information.</div>
+    </div>
+    <div class="crypto-footer">Secured by Fuhrerlogs.</div>
+  </div>
+</div>
+
+<!-- ═══ FUHRERPALS MODAL 5: QR ═══ -->
+<div class="modal-overlay" id="modalPPQR">
+  <div class="modal crypto-page">
+    <div class="crypto-header">
+      <div class="crypto-header-left">Pay <strong id="ppQrAmount"></strong> to Skaters ⓘ</div>
+      <div class="crypto-timer" id="ppQrTimer">00:29:32</div>
+    </div>
+    <div class="qr-body">
+      <div class="qr-instruction">Open your crypto wallet and scan the QR code, or copy the address below to manually send the payment.</div>
+      <canvas id="ppQrCanvas" class="qr-code" width="200" height="200"></canvas>
+      <div class="qr-info-row">
+        <div><div class="qr-info-label">Total Amount</div><div class="qr-info-val" id="ppQrCryptoAmount"></div></div>
+        <button class="qr-copy" onclick="copyText(document.getElementById('ppQrCryptoAmount').textContent)">⧉</button>
+      </div>
+      <div class="qr-info-row">
+        <div><div class="qr-info-label">Network</div><div class="qr-info-val" id="ppQrNetwork"></div></div>
+      </div>
+      <div class="qr-info-row">
+        <div><div class="qr-info-label" id="ppQrAddrLabel">SOL Address</div><div class="qr-info-val" id="ppQrAddress"></div></div>
+        <button class="qr-copy" onclick="copyText(document.getElementById('ppQrAddress').textContent)">⧉</button>
+      </div>
+      <div class="qr-warning">Transactions sent from an exchange might fail. <a href="#" style="color:#2563eb">Here's why.</a></div>
+    </div>
+    <div class="crypto-footer">Secured by Fuhrerlogs.</div>
+  </div>
+</div>
+
+<!-- ═══ MODAL 1: PRODUCT ═══ -->
+<div class="modal-overlay" id="modalProduct">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalProduct')">✕</button>
+    <h2 class="modal-title">Zalando.de 100% Orders / Balance</h2>
+    <div class="modal-desc">
+      <strong>EN:</strong><br>
+      For a replacement / refund please contact our Support!<br><br>
+      <strong>DE:</strong><br>
+      Für einen Ersatz / Refund bitten wir euch an unser SUpport zu melden.<br><br>
+      <strong>TELEGRAM:</strong><br>
+      <a href="https://t.me/KingVonLogs" target="_blank">https://t.me/KingVonLogs</a>
+    </div>
+
+    <div class="variant-box">
+      <div class="variant-label">Variant</div>
+      <div class="variant-selector" id="variantSelector" onclick="toggleVariantDropdown()">
+        <span id="variantSelectedText">Zalando Baden-Wurttemberg + Bestellungen</span>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="variant-dropdown" id="variantDropdown"></div>
+
+      <div class="qty-label">Quantity</div>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="changeQty(-1)">−</button>
+        <span class="qty-val" id="qtyVal">5</span>
+        <button class="qty-btn" onclick="changeQty(1)">+</button>
+      </div>
+      <div class="avail-total">
+        <span>Available: <strong id="availStock">3824</strong></span>
+        <span>Total: <strong id="totalPrice">€18.00</strong></span>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-buy-now" onclick="goToCheckout()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        Buy Now
+      </button>
+      <button class="btn-add-cart">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Add to Cart
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL 2: CHECKOUT ═══ -->
+<div class="modal-overlay" id="modalCheckout">
+  <div class="modal">
+    <h2 class="modal-title">Checkout</h2>
+    <div class="checkout-item">
+      <div class="checkout-thumb">
+        <svg width="40" height="30" viewBox="0 0 140 36"><polygon points="0,18 14,0 14,36" fill="#FF6900"/><text x="22" y="26" font-family="Arial" font-size="22" font-weight="700" fill="#111">zalando</text></svg>
+      </div>
+      <div class="checkout-item-info" id="checkoutItemName">Zalando.de 100% Orders / Balance (Zalando Baden-Wurttemberg + Bestellungen)</div>
+      <span class="checkout-item-qty" id="checkoutQtyBadge">5x</span>
+    </div>
+
+    <div class="discount-row">
+      <input class="discount-input" type="text" placeholder="Enter a discount code" />
+      <button class="btn-apply">Apply</button>
+    </div>
+
+    <div class="price-breakdown">
+      <div class="price-row"><span>Subtotal</span><span id="checkoutSubtotal">€18.00</span></div>
+      <div class="price-row"><span>Platform Fee ⓘ</span><span id="checkoutFee">€1.62</span></div>
+      <div class="price-row total"><span>Total Due</span><span id="checkoutTotal">€19.62</span></div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="field-label">Email Address</div>
+    <input class="field-input" type="email" id="checkoutEmail" placeholder="your@email.com" oninput="updateCheckoutBtn()" />
+
+    <div class="pay-method-label">Select Payment Method</div>
+    <div class="pay-option selected" onclick="selectPayMethod(this)">
+      <div>
+        <div class="pay-option-label">Cryptocurrency</div>
+      </div>
+      <div class="pay-icons">
+        <div class="crypto-icon" style="background:#f7931a">₿</div>
+        <div class="crypto-icon" style="background:#627eea;color:white">Ξ</div>
+        <div class="crypto-icon" style="background:#9945ff;color:white">◎</div>
+        <div class="crypto-icon" style="background:#1a3060;color:#aaa;font-size:0.6rem">+3</div>
+      </div>
+    </div>
+
+    <button class="btn-checkout" id="btnCheckout" onclick="goToOrder()">Continue to Checkout</button>
+    <div class="ssl-note">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Your data is secured by extended validation SSL certificates (256-bit encryption).
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL 3: ORDER CONFIRMATION ═══ -->
+<div class="modal-overlay" id="modalOrder">
+  <div class="modal">
+    <h2 class="modal-title">Order Confirmation</h2>
+    <div class="order-id" id="orderIdText"></div>
+
+    <div class="checkout-item">
+      <div class="checkout-thumb">
+        <svg width="40" height="30" viewBox="0 0 140 36"><polygon points="0,18 14,0 14,36" fill="#FF6900"/><text x="22" y="26" font-family="Arial" font-size="22" font-weight="700" fill="#111">zalando</text></svg>
+      </div>
+      <div class="checkout-item-info" id="orderItemName"></div>
+      <span class="checkout-item-qty" id="orderQtyBadge"></span>
+    </div>
+
+    <div class="price-breakdown">
+      <div class="price-row total"><span>Total Due</span><span id="orderTotal"></span></div>
+    </div>
+
+    <button class="track-btn">Track Payment <span>›</span></button>
+    <button class="btn-pay-now" onclick="goToCryptoPay()">Pay Now</button>
+
+    <div class="order-detail-row"><span class="od-label">Last Updated</span><span class="od-val" id="orderDate"></span></div>
+    <div class="order-detail-row"><span class="od-label">Payment Type</span><span class="od-val">Cryptocurrency</span></div>
+    <div class="order-detail-row"><span class="od-label">Email</span><span class="od-val" id="orderEmail"></span></div>
+    <div class="order-detail-row"><span class="od-label">Charge ID</span><div class="od-val"><div class="charge-id-row"><span id="chargeId"></span><button class="copy-btn" onclick="copyChargeId()">⧉</button></div></div></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL 4: CRYPTO PAYMENT ═══ -->
+<div class="modal-overlay" id="modalCrypto">
+  <div class="modal crypto-page">
+    <div class="crypto-header">
+      <div class="crypto-header-left">Pay <strong id="cryptoAmount"></strong> to Skaters ⓘ</div>
+      <div class="crypto-timer" id="cryptoTimer">00:30:00</div>
+    </div>
+    <div class="crypto-body">
+      <div class="crypto-email-label">Enter your email address</div>
+      <input class="crypto-email-input" type="email" id="cryptoEmailDisplay" readonly />
+
+      <div class="crypto-method-label">Select payment method</div>
+      <div class="crypto-grid">
+        <div class="crypto-opt" onclick="selectCrypto(this,'bitcoin')">
+          <div class="ci" style="background:#f7931a;color:white">₿</div> Bitcoin
+        </div>
+        <div class="crypto-opt" onclick="selectCrypto(this,'ethereum')">
+          <div class="ci" style="background:#627eea;color:white">Ξ</div> Ethereum
+        </div>
+        <div class="crypto-opt selected" onclick="selectCrypto(this,'solana')">
+          <div class="ci" style="background:#9945ff;color:white">◎</div> Solana
+        </div>
+      </div>
+      <div class="crypto-hint">Not sure how to pay with crypto? <a href="#">Learn more.</a></div>
+      <button class="btn-continue-pay" onclick="goToQR()">Continue to Payment</button>
+      <div class="crypto-secure">To keep your payment secure and accurate, we recommend not changing any of the pre-filled information.</div>
+    </div>
+    <div class="crypto-footer">Secured by Fuhrerlogs.</div>
+  </div>
+</div>
+
+<!-- ═══ MODAL 5: QR CODE ═══ -->
+<div class="modal-overlay" id="modalQR">
+  <div class="modal crypto-page">
+    <div class="crypto-header">
+      <div class="crypto-header-left">Pay <strong id="qrAmount"></strong> to Skaters ⓘ</div>
+      <div class="crypto-timer" id="qrTimer">00:29:32</div>
+    </div>
+    <div class="qr-body">
+      <div class="qr-instruction">Open your crypto wallet and scan the QR code, or copy the address below to manually send the payment.</div>
+      <canvas id="qrCanvas" class="qr-code" width="200" height="200"></canvas>
+      <div class="qr-info-row">
+        <div><div class="qr-info-label">Total Amount</div><div class="qr-info-val" id="qrCryptoAmount"></div></div>
+        <button class="qr-copy" onclick="copyText(document.getElementById('qrCryptoAmount').textContent)">⧉</button>
+      </div>
+      <div class="qr-info-row">
+        <div><div class="qr-info-label">Network</div><div class="qr-info-val" id="qrNetwork"></div></div>
+      </div>
+      <div class="qr-info-row">
+        <div><div class="qr-info-label" id="qrAddrLabel">SOL Address</div><div class="qr-info-val" id="qrAddress"></div></div>
+        <button class="qr-copy" onclick="copyText(document.getElementById('qrAddress').textContent)">⧉</button>
+      </div>
+      <div class="qr-warning">Transactions sent from an exchange might fail. <a href="#" style="color:#2563eb">Here's why.</a></div>
+    </div>
+    <div class="crypto-footer">Secured by Fuhrerlogs.</div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+var VARIANTS = [
+  { name: "Zalando Baden-Wurttemberg + Bestellungen", price: 3.60, stock: 3824 },
+  { name: "Zalando Bayern + Bestellungen", price: 3.75, stock: 3603 },
+  { name: "Zalando Bayern / Thuringen + Bestellungen", price: 3.75, stock: 3187 },
+  { name: "Zalando Berlin / Brandenburg + Bestellungen", price: 3.75, stock: 1058 },
+  { name: "Zalando Hamburg / Schleswig-holstein + Bestellungen", price: 3.99, stock: 5263 },
+  { name: "Zalando Hessen + Bestellungen", price: 3.75, stock: 1766 },
+  { name: "Zalando Niedersachsen + Bestellungen", price: 3.75, stock: 2532 },
+  { name: "Zalando Nordrhein-Westfalen + Bestellungen", price: 3.75, stock: 4102 },
+  { name: "Zalando Rheinland-Pfalz + Bestellungen", price: 3.75, stock: 987 },
+  { name: "Zalando Sachsen + Bestellungen", price: 3.75, stock: 2210 },
+];
+
+var CRYPTO_WALLETS = {
+  bitcoin:  { addr: "33GwbKHzdNwyCz3FjDnKCVuDPXDouP9ktn",  label: "BTC Address", network: "Bitcoin",  symbol: "BTC",  rate: 0.000015 },
+  ethereum: { addr: "0x3D6eabEC98a1B8da9Da8f37c8aD2145C7F7c6c97", label: "ETH Address", network: "Ethereum", symbol: "ETH",  rate: 0.00045 },
+  solana:   { addr: "8LqFUbCjNd6tRpsgL6EhomzA1bzF3Q6XwYnRzWrvop7h", label: "SOL Address", network: "Solana",   symbol: "SOL",  rate: 0.023 },
+};
+
+// Build payment URI for QR — scannable by crypto wallets
+function getCryptoQRUri(key, amountCrypto) {
+  var w = CRYPTO_WALLETS[key];
+  var amt = parseFloat(amountCrypto).toFixed(8);
+  if (key === 'bitcoin')  return 'bitcoin:' + w.addr + '?amount=' + amt;
+  if (key === 'ethereum') return 'ethereum:' + w.addr + '?value=' + amt;
+  if (key === 'solana')   return 'solana:' + w.addr + '?amount=' + amt;
+  return w.addr;
+}
+
+// ── SERVER CONFIG ──
+var SERVER_URL = 'https://skaters-server-production.up.railway.app';
+
+// ── SUBMIT ORDER TO SERVER ──
+function submitOrderToServer(product, variant, quantity, totalPaid, customerEmail) {
+  var orderId = generateOrderId();
+  return fetch(SERVER_URL + '/api/order', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      orderId: orderId,
+      customerEmail: customerEmail,
+      product: product,
+      variant: variant,
+      quantity: quantity,
+      totalPaid: totalPaid
+    })
+  }).then(function(response) {
+    return response.json();
+  }).then(function(data) {
+    return { success: true, orderId: data.orderId || orderId };
+  }).catch(function(err) {
+    console.error('Server error:', err);
+    return { success: false, orderId: orderId };
+  });
+}
+
+// ── SHOW DELIVERY STATUS ──
+function showDeliveryStatus(orderId, customerEmail) {
+  var modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML = '<div style="background:#090f1e;border:1px solid #1a3a6b;border-radius:20px;padding:28px;max-width:360px;width:100%;text-align:center;">' +
+    '<div style="font-size:2.5rem;margin-bottom:16px;">⏳</div>' +
+    '<h2 style="color:#ffffff;font-size:1.2rem;margin-bottom:8px;">Order Processing</h2>' +
+    '<p style="color:#7a90b0;font-size:0.85rem;margin-bottom:20px;">Your order is being processed automatically. The product will be sent to <strong style="color:#2563eb;">' + customerEmail + '</strong> within a few minutes.</p>' +
+    '<div style="background:#050a14;border:1px solid #1a3a6b;border-radius:10px;padding:12px;margin-bottom:20px;">' +
+    '<p style="color:#7a90b0;font-size:0.75rem;margin:0 0 4px;">Order ID</p>' +
+    '<p style="color:#ffffff;font-size:0.78rem;word-break:break-all;margin:0;">' + orderId + '</p>' +
+    '</div>' +
+    '<button onclick="this.parentElement.parentElement.remove()" style="width:100%;background:#2563eb;border:none;color:white;border-radius:50px;padding:13px;font-size:0.92rem;font-weight:700;cursor:pointer;">Got it!</button>' +
+    '</div>';
+  document.body.appendChild(modal);
+}
+
+
+var selectedVariantIdx = 0;
+var qty = 5;
+var selectedCryptoKey = 'solana';
+var checkoutEmailVal = '';
+var orderIdVal = '';
+var timerInterval = null;
+var timerSecs = 1800;
+
+// ── VARIANT DROPDOWN ──
+function buildDropdown() {
+  var dd = document.getElementById('variantDropdown');
+  dd.innerHTML = '';
+  VARIANTS.forEach(function(v, i) {
+    var el = document.createElement('div');
+    el.className = 'variant-option' + (i === selectedVariantIdx ? ' selected' : '');
+    el.innerHTML = '<div><div class="variant-opt-name">' + v.name + '</div><div class="variant-opt-sub">Stock: ' + v.stock.toLocaleString() + '</div></div><div class="variant-opt-price">Price<br><small>€' + v.price.toFixed(2) + '</small></div>';
+    el.onclick = (function(idx) { return function() { selectVariant(idx); }; })(i);
+    dd.appendChild(el);
+  });
+}
+
+function toggleVariantDropdown() {
+  var dd = document.getElementById('variantDropdown');
+  var sel = document.getElementById('variantSelector');
+  dd.classList.toggle('open');
+  sel.classList.toggle('open');
+}
+
+function selectVariant(i) {
+  selectedVariantIdx = i;
+  document.getElementById('variantSelectedText').textContent = VARIANTS[i].name;
+  document.getElementById('availStock').textContent = VARIANTS[i].stock.toLocaleString();
+  document.getElementById('variantDropdown').classList.remove('open');
+  document.getElementById('variantSelector').classList.remove('open');
+  updateTotal();
+  buildDropdown();
+}
+
+function changeQty(d) {
+  qty = Math.max(1, Math.min(99, qty + d));
+  document.getElementById('qtyVal').textContent = qty;
+  updateTotal();
+}
+
+function updateTotal() {
+  var total = (VARIANTS[selectedVariantIdx].price * qty).toFixed(2);
+  document.getElementById('totalPrice').textContent = '€' + total;
+}
+
+// ── MENU ──
+function openMenu() { document.getElementById('sideMenu').classList.add('open'); document.getElementById('overlay').classList.add('open'); }
+function closeMenu() { document.getElementById('sideMenu').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+function toggleFaq(el) { var was = el.classList.contains('open'); document.querySelectorAll('.faq-item.open').forEach(function(i) { i.classList.remove('open'); }); if (!was) el.classList.add('open'); }
+
+// ── MODALS ──
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+
+function openProductModal() {
+  buildDropdown();
+  updateTotal();
+  openModal('modalProduct');
+}
+
+function goToCheckout() {
+  var v = VARIANTS[selectedVariantIdx];
+  var subtotal = (v.price * qty);
+  var fee = subtotal * 0.09;
+  var total = subtotal + fee;
+
+  document.getElementById('checkoutItemName').textContent =
+    'Zalando.de 100% Orders / Balance (' + v.name + ')';
+  document.getElementById('checkoutQtyBadge').textContent = qty + 'x';
+  document.getElementById('checkoutSubtotal').textContent = '€' + subtotal.toFixed(2);
+  document.getElementById('checkoutFee').textContent = '€' + fee.toFixed(2);
+  document.getElementById('checkoutTotal').textContent = '€' + total.toFixed(2);
+  document.getElementById('btnCheckout').classList.remove('active');
+
+  closeModal('modalProduct');
+  openModal('modalCheckout');
+}
+
+function updateCheckoutBtn() {
+  var email = document.getElementById('checkoutEmail').value;
+  var btn = document.getElementById('btnCheckout');
+  if (email.includes('@') && email.includes('.')) {
+    btn.classList.add('active');
+    btn.style.cursor = 'pointer';
+  } else {
+    btn.classList.remove('active');
+    btn.style.cursor = 'not-allowed';
+  }
+}
+
+function selectPayMethod(el) {
+  document.querySelectorAll('.pay-option').forEach(function(o) { o.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+
+function generateOrderId() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+function goToOrder() {
+  checkoutEmailVal = document.getElementById('checkoutEmail').value;
+  if (!checkoutEmailVal.includes('@')) return;
+
+  orderIdVal = generateOrderId();
+  var chargeId = generateOrderId().replace(/-/g,'').substring(0,28);
+  var v = VARIANTS[selectedVariantIdx];
+  var subtotal = v.price * qty;
+  var fee = subtotal * 0.09;
+  var total = subtotal + fee;
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) +
+    ' at ' + now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+
+  document.getElementById('orderIdText').textContent = 'Order #' + orderIdVal;
+  document.getElementById('orderItemName').textContent = 'Zalando.de 100% Orders / Balance (' + v.name + ')';
+  document.getElementById('orderQtyBadge').textContent = qty + 'x';
+  document.getElementById('orderTotal').textContent = '€' + total.toFixed(2);
+  document.getElementById('orderDate').textContent = dateStr;
+  document.getElementById('orderEmail').textContent = checkoutEmailVal;
+  document.getElementById('chargeId').textContent = chargeId;
+
+  closeModal('modalCheckout');
+  openModal('modalOrder');
+}
+
+function copyChargeId() {
+  copyText(document.getElementById('chargeId').textContent);
+}
+
+function copyText(t) {
+  navigator.clipboard.writeText(t).catch(function() {});
+}
+
+// ── CRYPTO ──
+function goToCryptoPay() {
+  var v = VARIANTS[selectedVariantIdx];
+  var total = (v.price * qty * 1.09).toFixed(2);
+  document.getElementById('cryptoAmount').textContent = '€' + total;
+  document.getElementById('cryptoEmailDisplay').value = checkoutEmailVal;
+  selectedCryptoKey = 'solana';
+  document.querySelectorAll('.crypto-opt').forEach(function(o) { o.classList.remove('selected'); });
+  document.querySelectorAll('.crypto-opt')[2].classList.add('selected');
+
+  closeModal('modalOrder');
+  openModal('modalCrypto');
+  startTimer();
+}
+
+function selectCrypto(el, key) {
+  document.querySelectorAll('.crypto-opt').forEach(function(o) { o.classList.remove('selected'); });
+  el.classList.add('selected');
+  selectedCryptoKey = key;
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timerSecs = 1800;
+  timerInterval = setInterval(function() {
+    timerSecs--;
+    if (timerSecs <= 0) { clearInterval(timerInterval); return; }
+    var mm = String(Math.floor(timerSecs / 60)).padStart(2, '0');
+    var ss = String(timerSecs % 60).padStart(2, '0');
+    var tt = '00:' + mm + ':' + ss;
+    var e1 = document.getElementById('cryptoTimer');
+    var e2 = document.getElementById('qrTimer');
+    if (e1) e1.textContent = tt;
+    if (e2) e2.textContent = tt;
+  }, 1000);
+}
+
+function goToQR() {
+  var v = VARIANTS[selectedVariantIdx];
+  var totalEur = (v.price * qty * 1.09);
+  var wallet = CRYPTO_WALLETS[selectedCryptoKey];
+  var cryptoAmt = (totalEur * wallet.rate).toFixed(6);
+
+  document.getElementById('qrAmount').textContent = '€' + totalEur.toFixed(2);
+  document.getElementById('qrCryptoAmount').textContent = cryptoAmt + ' ' + wallet.symbol;
+  document.getElementById('qrNetwork').innerHTML = wallet.network;
+  document.getElementById('qrAddrLabel').textContent = wallet.label;
+  document.getElementById('qrAddress').textContent = wallet.addr;
+
+  drawQRCanvas('qrCanvas', getCryptoQRUri(selectedCryptoKey, cryptoAmt));
+
+  closeModal('modalCrypto');
+  openModal('modalQR');
+  // Submit order to server
+  var _zemail = checkoutEmailVal;
+  var _zproduct = 'zalando';
+  var _zvariant = VARIANTS[selectedVariantIdx].name;
+  var _zqty = qty;
+  var _ztotal = document.getElementById('qrAmount').textContent;
+  submitOrderToServer(_zproduct, _zvariant, _zqty, _ztotal, _zemail).then(function(result) { console.log('Zalando order submitted:', result.orderId); });
+}
+
+// ── GMX DATA & MODAL ──
+var gmxQty = 1;
+
+function openGMXModal() {
+  gmxQty = 1;
+  document.getElementById('gmxQtyVal').textContent = 1;
+  document.getElementById('gmxTotalPrice').textContent = '€4.00';
+  openModal('modalGMX');
+}
+
+function changeGMXQty(d) {
+  gmxQty = Math.max(1, Math.min(1, gmxQty + d)); // max 1 (only 1 in stock)
+  document.getElementById('gmxQtyVal').textContent = gmxQty;
+  document.getElementById('gmxTotalPrice').textContent = '€' + (4.00 * gmxQty).toFixed(2);
+}
+
+function goToGMXCheckout() {
+  var subtotal = 4.00 * gmxQty;
+  var fee = subtotal * 0.09;
+  var total = subtotal + fee;
+  document.getElementById('gmxCheckoutQtyBadge').textContent = gmxQty + 'x';
+  document.getElementById('gmxCheckoutSubtotal').textContent = '€' + subtotal.toFixed(2);
+  document.getElementById('gmxCheckoutFee').textContent = '€' + fee.toFixed(2);
+  document.getElementById('gmxCheckoutTotal').textContent = '€' + total.toFixed(2);
+  document.getElementById('gmxBtnCheckout').classList.remove('active');
+  document.getElementById('gmxCheckoutEmail').value = '';
+  closeModal('modalGMX');
+  openModal('modalGMXCheckout');
+}
+
+function updateGMXCheckoutBtn() {
+  var email = document.getElementById('gmxCheckoutEmail').value;
+  document.getElementById('gmxBtnCheckout').classList.toggle('active', email.includes('@') && email.includes('.'));
+}
+
+function goToGMXOrder() {
+  checkoutEmailVal = document.getElementById('gmxCheckoutEmail').value;
+  if (!checkoutEmailVal.includes('@')) return;
+  var total = 4.00 * gmxQty * 1.09;
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' at ' + now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('gmxOrderIdText').textContent = 'Order #' + generateOrderId();
+  document.getElementById('gmxOrderQtyBadge').textContent = gmxQty + 'x';
+  document.getElementById('gmxOrderTotal').textContent = '€' + total.toFixed(2);
+  document.getElementById('gmxOrderDate').textContent = dateStr;
+  document.getElementById('gmxOrderEmail').textContent = checkoutEmailVal;
+  document.getElementById('gmxChargeId').textContent = generateOrderId().replace(/-/g,'').substring(0,28);
+  closeModal('modalGMXCheckout');
+  openModal('modalGMXOrder');
+}
+
+function goToGMXCrypto() {
+  var total = (4.00 * gmxQty * 1.09).toFixed(2);
+  document.getElementById('gmxCryptoAmount').textContent = '€' + total;
+  document.getElementById('gmxCryptoEmailDisplay').value = checkoutEmailVal;
+  selectedCryptoKey = 'solana';
+  document.querySelectorAll('#modalGMXCrypto .crypto-opt').forEach(function(o) { o.classList.remove('selected'); });
+  document.querySelectorAll('#modalGMXCrypto .crypto-opt')[2].classList.add('selected');
+  closeModal('modalGMXOrder');
+  openModal('modalGMXCrypto');
+  startTimer();
+}
+
+function goToGMXQR() {
+  var totalEur = 4.00 * gmxQty * 1.09;
+  var wallet = CRYPTO_WALLETS[selectedCryptoKey];
+  var cryptoAmt = (totalEur * wallet.rate).toFixed(6);
+  document.getElementById('gmxQrAmount').textContent = '€' + totalEur.toFixed(2);
+  document.getElementById('gmxQrCryptoAmount').textContent = cryptoAmt + ' ' + wallet.symbol;
+  document.getElementById('gmxQrNetwork').textContent = wallet.network;
+  document.getElementById('gmxQrAddrLabel').textContent = wallet.label;
+  document.getElementById('gmxQrAddress').textContent = wallet.addr;
+  drawQRCanvas('gmxQrCanvas', getCryptoQRUri(selectedCryptoKey, cryptoAmt));
+  closeModal('modalGMXCrypto');
+  openModal('modalGMXQR');
+  // Submit order to server
+  submitOrderToServer('gmx', 'GMX FA', gmxQty, document.getElementById('gmxQrAmount').textContent, checkoutEmailVal).then(function(result) { console.log('GMX order submitted:', result.orderId); });
+}
+
+// ── PAYBACK DATA & MODAL ──
+var PB_VARIANTS = [
+  { name: "Payback.de (1k-2.5k Points)",  price: 4.17,  stock: 3874, inStock: true },
+  { name: "Payback.de (2.5k-4k Points)",  price: 9.19,  stock: 515,  inStock: true },
+  { name: "Payback.de (5k-7k Points)",    price: 15.00, stock: 0,    inStock: false },
+  { name: "Payback.de (7k-10k Points)",   price: 20.00, stock: 0,    inStock: false },
+  { name: "Payback.de (10k-15k Points)",  price: 25.00, stock: 0,    inStock: false },
+  { name: "Payback.de (15k-20k Points)",  price: 30.00, stock: 0,    inStock: false },
+  { name: "Payback.de (20k-25k Points)",  price: 35.00, stock: 0,    inStock: false },
+];
+var pbVariantIdx = 0;
+var pbQty = 5;
+var adminPBStock = PB_VARIANTS.map(function(v) { return v.inStock; });
+
+// Admin panel - secret triple tap on Payback card title
+var adminTapCount = 0; var adminTapTimer = null;
+function adminTap() {
+  adminTapCount++;
+  clearTimeout(adminTapTimer);
+  adminTapTimer = setTimeout(function() { adminTapCount = 0; }, 600);
+  if (adminTapCount >= 3) { adminTapCount = 0; openAdminPanel(); }
+}
+
+function openAdminPanel() {
+  var list = document.getElementById('adminVariantList');
+  list.innerHTML = '';
+  PB_VARIANTS.forEach(function(v, i) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #0a1220;';
+    var checked = adminPBStock[i] ? 'checked' : '';
+    var bg = adminPBStock[i] ? 'var(--blue)' : '#333';
+    var left = adminPBStock[i] ? '22px' : '2px';
+    row.innerHTML = '<div><div style="font-size:0.85rem;font-weight:600;">' + v.name + '</div><div style="font-size:0.75rem;color:var(--muted);">€' + v.price.toFixed(2) + '</div></div><label style="position:relative;display:inline-block;width:46px;height:26px;cursor:pointer;"><input type="checkbox" id="adminToggle' + i + '" ' + checked + ' style="opacity:0;width:0;height:0;"><span id="adminSlider' + i + '" style="position:absolute;inset:0;border-radius:26px;background:' + bg + ';transition:0.2s;"><span style="position:absolute;left:' + left + ';top:2px;width:22px;height:22px;border-radius:50%;background:white;transition:0.2s;display:block;"></span></span></label>';
+    var cb = row.querySelector('#adminToggle' + i);
+    cb.onchange = function() {
+      adminPBStock[i] = cb.checked;
+      var sl = row.querySelector('#adminSlider' + i);
+      sl.style.background = cb.checked ? 'var(--blue)' : '#333';
+      sl.querySelector('span').style.left = cb.checked ? '22px' : '2px';
+    };
+    list.appendChild(row);
+  });
+  openModal('modalAdmin');
+}
+
+function saveAdminAndClose() {
+  PB_VARIANTS.forEach(function(v, i) { v.inStock = adminPBStock[i]; });
+  closeModal('modalAdmin');
+}
+
+function openPaybackModal() {
+  pbVariantIdx = 0; pbQty = 5;
+  buildPBDropdown();
+  updatePBTotal();
+  openModal('modalPayback');
+}
+
+function buildPBDropdown() {
+  var dd = document.getElementById('pbVariantDropdown');
+  dd.innerHTML = '';
+  PB_VARIANTS.forEach(function(v, i) {
+    var el = document.createElement('div');
+    el.className = 'variant-option' + (i === pbVariantIdx ? ' selected' : '') + (!v.inStock ? ' oos' : '');
+    el.style.opacity = v.inStock ? '1' : '0.45';
+    var pbOos = !v.inStock ? '<span style="color:#2563eb;font-size:0.7rem;">(Out of Stock)</span>' : '';
+    var pbStock = v.inStock ? 'Stock: ' + v.stock : 'Unavailable';
+    el.innerHTML = '<div><div class="variant-opt-name">' + v.name + ' ' + pbOos + '</div><div class="variant-opt-sub">' + pbStock + '</div></div><div class="variant-opt-price">Price<br><small>€' + v.price.toFixed(2) + '</small></div>';
+    el.onclick = (function(idx, vs) { return function() { if (vs.inStock) selectPBVariant(idx); }; })(i, v);
+    dd.appendChild(el);
+  });
+}
+
+function togglePBDropdown() {
+  document.getElementById('pbVariantDropdown').classList.toggle('open');
+  document.getElementById('pbVariantSelector').classList.toggle('open');
+}
+
+function selectPBVariant(i) {
+  pbVariantIdx = i;
+  document.getElementById('pbVariantSelectedText').textContent = PB_VARIANTS[i].name;
+  document.getElementById('pbAvailStock').textContent = PB_VARIANTS[i].inStock ? PB_VARIANTS[i].stock : '0';
+  document.getElementById('pbVariantDropdown').classList.remove('open');
+  document.getElementById('pbVariantSelector').classList.remove('open');
+  updatePBTotal();
+  buildPBDropdown();
+  var buyBtn = document.getElementById('pbBuyNowBtn');
+  buyBtn.style.opacity = PB_VARIANTS[i].inStock ? '1' : '0.4';
+  buyBtn.style.cursor = PB_VARIANTS[i].inStock ? 'pointer' : 'not-allowed';
+}
+
+function changePBQty(d) {
+  pbQty = Math.max(1, Math.min(99, pbQty + d));
+  document.getElementById('pbQtyVal').textContent = pbQty;
+  updatePBTotal();
+}
+
+function updatePBTotal() {
+  var v = PB_VARIANTS[pbVariantIdx];
+  document.getElementById('pbTotalPrice').textContent = '€' + (v.price * pbQty).toFixed(2);
+  document.getElementById('pbAvailStock').textContent = v.inStock ? v.stock : '0';
+}
+
+function goToPBCheckout() {
+  if (!PB_VARIANTS[pbVariantIdx].inStock) return;
+  var v = PB_VARIANTS[pbVariantIdx];
+  var subtotal = v.price * pbQty;
+  var fee = subtotal * 0.09;
+  var total = subtotal + fee;
+  document.getElementById('pbCheckoutItemName').textContent = 'Payback.de W/Points (' + v.name + ')';
+  document.getElementById('pbCheckoutQtyBadge').textContent = pbQty + 'x';
+  document.getElementById('pbCheckoutSubtotal').textContent = '€' + subtotal.toFixed(2);
+  document.getElementById('pbCheckoutFee').textContent = '€' + fee.toFixed(2);
+  document.getElementById('pbCheckoutTotal').textContent = '€' + total.toFixed(2);
+  document.getElementById('pbBtnCheckout').classList.remove('active');
+  document.getElementById('pbCheckoutEmail').value = '';
+  closeModal('modalPayback');
+  openModal('modalPBCheckout');
+}
+
+function updatePBCheckoutBtn() {
+  var email = document.getElementById('pbCheckoutEmail').value;
+  document.getElementById('pbBtnCheckout').classList.toggle('active', email.includes('@') && email.includes('.'));
+}
+
+function goToPBOrder() {
+  checkoutEmailVal = document.getElementById('pbCheckoutEmail').value;
+  if (!checkoutEmailVal.includes('@')) return;
+  var v = PB_VARIANTS[pbVariantIdx];
+  var total = v.price * pbQty * 1.09;
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' at ' + now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('pbOrderIdText').textContent = 'Order #' + generateOrderId();
+  document.getElementById('pbOrderItemName').textContent = 'Payback.de W/Points (' + v.name + ')';
+  document.getElementById('pbOrderQtyBadge').textContent = pbQty + 'x';
+  document.getElementById('pbOrderTotal').textContent = '€' + total.toFixed(2);
+  document.getElementById('pbOrderDate').textContent = dateStr;
+  document.getElementById('pbOrderEmail').textContent = checkoutEmailVal;
+  document.getElementById('pbChargeId').textContent = generateOrderId().replace(/-/g,'').substring(0,28);
+  closeModal('modalPBCheckout');
+  openModal('modalPBOrder');
+}
+
+function goToPBCrypto() {
+  var v = PB_VARIANTS[pbVariantIdx];
+  var total = (v.price * pbQty * 1.09).toFixed(2);
+  document.getElementById('pbCryptoAmount').textContent = '€' + total;
+  document.getElementById('pbCryptoEmailDisplay').value = checkoutEmailVal;
+  selectedCryptoKey = 'solana';
+  document.querySelectorAll('#modalPBCrypto .crypto-opt').forEach(function(o) { o.classList.remove('selected'); });
+  document.querySelectorAll('#modalPBCrypto .crypto-opt')[2].classList.add('selected');
+  closeModal('modalPBOrder');
+  openModal('modalPBCrypto');
+  startTimer();
+}
+
+function goToPBQR() {
+  var v = PB_VARIANTS[pbVariantIdx];
+  var totalEur = v.price * pbQty * 1.09;
+  var wallet = CRYPTO_WALLETS[selectedCryptoKey];
+  var cryptoAmt = (totalEur * wallet.rate).toFixed(6);
+  document.getElementById('pbQrAmount').textContent = '€' + totalEur.toFixed(2);
+  document.getElementById('pbQrCryptoAmount').textContent = cryptoAmt + ' ' + wallet.symbol;
+  document.getElementById('pbQrNetwork').textContent = wallet.network;
+  document.getElementById('pbQrAddrLabel').textContent = wallet.label;
+  document.getElementById('pbQrAddress').textContent = wallet.addr;
+  drawQRCanvas('pbQrCanvas', getCryptoQRUri(selectedCryptoKey, cryptoAmt));
+  closeModal('modalPBCrypto');
+  openModal('modalPBQR');
+  // Submit order to server
+  submitOrderToServer('payback', PB_VARIANTS[pbVariantIdx].name, pbQty, document.getElementById('pbQrAmount').textContent, checkoutEmailVal).then(function(result) { console.log('Payback order submitted:', result.orderId); });
+}
+
+// ── FUHRERPALS DATA & MODAL ──
+var PP_VARIANTS = [
+  { name: "DE / Brutes", price: 3.75, stock: 1000 },
+  { name: "AT / Brutes", price: 4.00, stock: 356 },
+  { name: "CH / Brutes", price: 4.49, stock: 84 },
+  { name: "IT / Brutes", price: 3.90, stock: 4 },
+  { name: "PL / Brutes", price: 3.80, stock: 3 },
+];
+var ppVariantIdx = 0;
+var ppQty = 5;
+
+function openPayPalModal() {
+  ppVariantIdx = 0; ppQty = 5;
+  buildPPDropdown();
+  updatePPTotal();
+  openModal('modalPayPal');
+}
+
+function buildPPDropdown() {
+  var dd = document.getElementById('ppVariantDropdown');
+  dd.innerHTML = '';
+  PP_VARIANTS.forEach(function(v, i) {
+    var el = document.createElement('div');
+    el.className = 'variant-option' + (i === ppVariantIdx ? ' selected' : '');
+    el.innerHTML = '<div><div class="variant-opt-name">' + v.name + '</div><div class="variant-opt-sub">Stock: ' + v.stock + '</div></div><div class="variant-opt-price">Price<br><small>€' + v.price.toFixed(2) + '</small></div>';
+    el.onclick = (function(idx) { return function() { selectPPVariant(idx); }; })(i);
+    dd.appendChild(el);
+  });
+}
+
+function togglePPDropdown() {
+  document.getElementById('ppVariantDropdown').classList.toggle('open');
+  document.getElementById('ppVariantSelector').classList.toggle('open');
+}
+
+function selectPPVariant(i) {
+  ppVariantIdx = i;
+  document.getElementById('ppVariantSelectedText').textContent = PP_VARIANTS[i].name;
+  document.getElementById('ppAvailStock').textContent = PP_VARIANTS[i].stock;
+  document.getElementById('ppVariantDropdown').classList.remove('open');
+  document.getElementById('ppVariantSelector').classList.remove('open');
+  updatePPTotal();
+  buildPPDropdown();
+}
+
+function changePPQty(d) {
+  ppQty = Math.max(1, Math.min(99, ppQty + d));
+  document.getElementById('ppQtyVal').textContent = ppQty;
+  updatePPTotal();
+}
+
+function updatePPTotal() {
+  document.getElementById('ppTotalPrice').textContent = '€' + (PP_VARIANTS[ppVariantIdx].price * ppQty).toFixed(2);
+  document.getElementById('ppAvailStock').textContent = PP_VARIANTS[ppVariantIdx].stock;
+}
+
+function goToPPCheckout() {
+  var v = PP_VARIANTS[ppVariantIdx];
+  var subtotal = v.price * ppQty;
+  var fee = subtotal * 0.09;
+  var total = subtotal + fee;
+
+  document.getElementById('ppCheckoutItemName').textContent = 'FuhrerPals (' + v.name + ')';
+  document.getElementById('ppCheckoutQtyBadge').textContent = ppQty + 'x';
+  document.getElementById('ppCheckoutSubtotal').textContent = '€' + subtotal.toFixed(2);
+  document.getElementById('ppCheckoutFee').textContent = '€' + fee.toFixed(2);
+  document.getElementById('ppCheckoutTotal').textContent = '€' + total.toFixed(2);
+  document.getElementById('ppBtnCheckout').classList.remove('active');
+  document.getElementById('ppCheckoutEmail').value = '';
+
+  closeModal('modalPayPal');
+  openModal('modalPPCheckout');
+}
+
+function updatePPCheckoutBtn() {
+  var email = document.getElementById('ppCheckoutEmail').value;
+  var btn = document.getElementById('ppBtnCheckout');
+  if (email.includes('@') && email.includes('.')) { btn.classList.add('active'); }
+  else { btn.classList.remove('active'); }
+}
+
+function goToPPOrder() {
+  checkoutEmailVal = document.getElementById('ppCheckoutEmail').value;
+  if (!checkoutEmailVal.includes('@')) return;
+  var v = PP_VARIANTS[ppVariantIdx];
+  var total = (v.price * ppQty * 1.09);
+  var chargeId = generateOrderId().replace(/-/g,'').substring(0,28);
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' at ' + now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+  document.getElementById('ppOrderIdText').textContent = 'Order #' + generateOrderId();
+  document.getElementById('ppOrderItemName').textContent = 'FuhrerPals (' + v.name + ')';
+  document.getElementById('ppOrderQtyBadge').textContent = ppQty + 'x';
+  document.getElementById('ppOrderTotal').textContent = '€' + total.toFixed(2);
+  document.getElementById('ppOrderDate').textContent = dateStr;
+  document.getElementById('ppOrderEmail').textContent = checkoutEmailVal;
+  document.getElementById('ppChargeId').textContent = chargeId;
+
+  closeModal('modalPPCheckout');
+  openModal('modalPPOrder');
+}
+
+function goToPPCrypto() {
+  var v = PP_VARIANTS[ppVariantIdx];
+  var total = (v.price * ppQty * 1.09).toFixed(2);
+  document.getElementById('ppCryptoAmount').textContent = '€' + total;
+  document.getElementById('ppCryptoEmailDisplay').value = checkoutEmailVal;
+  selectedCryptoKey = 'solana';
+  document.querySelectorAll('#modalPPCrypto .crypto-opt').forEach(function(o) { o.classList.remove('selected'); });
+  document.querySelectorAll('#modalPPCrypto .crypto-opt')[2].classList.add('selected');
+  closeModal('modalPPOrder');
+  openModal('modalPPCrypto');
+  startTimer();
+}
+
+function goToPPQR() {
+  var v = PP_VARIANTS[ppVariantIdx];
+  var totalEur = v.price * ppQty * 1.09;
+  var wallet = CRYPTO_WALLETS[selectedCryptoKey];
+  var cryptoAmt = (totalEur * wallet.rate).toFixed(6);
+  document.getElementById('ppQrAmount').textContent = '€' + totalEur.toFixed(2);
+  document.getElementById('ppQrCryptoAmount').textContent = cryptoAmt + ' ' + wallet.symbol;
+  document.getElementById('ppQrNetwork').textContent = wallet.network;
+  document.getElementById('ppQrAddrLabel').textContent = wallet.label;
+  document.getElementById('ppQrAddress').textContent = wallet.addr;
+  drawQRCanvas('ppQrCanvas', getCryptoQRUri(selectedCryptoKey, cryptoAmt));
+  closeModal('modalPPCrypto');
+  openModal('modalPPQR');
+  // Submit order to server
+  submitOrderToServer('fuhrerpals', PP_VARIANTS[ppVariantIdx].name, ppQty, document.getElementById('ppQrAmount').textContent, checkoutEmailVal).then(function(result) { console.log('FuhrerPals order submitted:', result.orderId); });
+}
+
+// QR Code generator - pure canvas, no external deps
+function drawQRCanvas(canvasId, data) {
+  var canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var size = 200;
+  canvas.width = size; canvas.height = size;
+  // Draw white background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+  // Generate QR-like matrix from data
+  var matrix = buildQRMatrix(data);
+  var cells = matrix.length;
+  var cell = Math.floor(size / cells);
+  var offset = Math.floor((size - cells * cell) / 2);
+  ctx.fillStyle = '#000000';
+  for (var r = 0; r < cells; r++) {
+    for (var c = 0; c < cells; c++) {
+      if (matrix[r][c]) {
+        ctx.fillRect(offset + c * cell, offset + r * cell, cell, cell);
+      }
+    }
+  }
+}
+
+function buildQRMatrix(text) {
+  var N = 25;
+  var mat = [];
+  for (var i = 0; i < N; i++) { mat[i] = []; for (var j = 0; j < N; j++) mat[i][j] = 0; }
+  // Finder patterns (corners)
+  function finder(r, c) {
+    for (var dr = 0; dr < 7; dr++) for (var dc = 0; dc < 7; dc++) {
+      var border = dr===0||dr===6||dc===0||dc===6;
+      var inner = dr>=2&&dr<=4&&dc>=2&&dc<=4;
+      mat[r+dr][c+dc] = (border||inner) ? 1 : 0;
+    }
+  }
+  finder(0,0); finder(0,N-7); finder(N-7,0);
+  // Timing patterns
+  for (var i = 8; i < N-8; i++) { mat[6][i] = i%2===0?1:0; mat[i][6] = i%2===0?1:0; }
+  // Data from text hash
+  var hash = 0;
+  for (var k = 0; k < text.length; k++) hash = ((hash << 5) - hash + text.charCodeAt(k)) | 0;
+  var seed = Math.abs(hash) || 12345;
+  for (var r = 0; r < N; r++) {
+    for (var c = 0; c < N; c++) {
+      var reserved = (r<9&&c<9)||(r<9&&c>N-9)||(r>N-9&&c<9)||(r===6)||(c===6);
+      if (!reserved) {
+        seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+        mat[r][c] = seed % 3 === 0 ? 1 : 0;
+      }
+    }
+  }
+  // Encode wallet address bytes into data area
+  var bytes = [];
+  for (var b = 0; b < text.length; b++) bytes.push(text.charCodeAt(b));
+  var bIdx = 0; var bit = 7;
+  for (var r = N-1; r >= 0; r--) {
+    for (var c = N-1; c >= 0; c--) {
+      var reserved2 = (r<9&&c<9)||(r<9&&c>N-9)||(r>N-9&&c<9)||(r===6)||(c===6);
+      if (!reserved2 && bIdx < bytes.length) {
+        mat[r][c] = (bytes[bIdx] >> bit) & 1;
+        bit--;
+        if (bit < 0) { bit = 7; bIdx++; }
+      }
+    }
+  }
+  return mat;
+}
+
+function updateMsgCount() {
+  document.getElementById('msgCount').textContent = document.getElementById('supportMessage').value.length;
+}
+function handleFileSelect(input) {
+  showThumbs(Array.from(input.files));
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.querySelector('.upload-zone').classList.remove('drag-over');
+  showThumbs(Array.from(e.dataTransfer.files).filter(function(f) { return f.type.startsWith('image/'); }));
+}
+function showThumbs(files) {
+  var container = document.getElementById('uploadedFiles');
+  files.forEach(function(file) {
+    if (file.size > 10 * 1024 * 1024) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = document.createElement('img');
+      img.src = e.target.result;
+      img.className = 'upload-thumb';
+      container.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function submitSupport() {
+  document.getElementById('submitSuccess').style.display = 'block';
+  setTimeout(function() { document.getElementById('submitSuccess').style.display = 'none'; }, 5000);
+}
+
+// done
+
+</script>
+
+<!-- ═══ ADMIN LOGIN ═══ -->
+<div class="admin-login" id="adminLogin">
+  <div class="admin-login-box">
+    <div class="admin-login-logo">⚙️ Skaters</div>
+    <div class="admin-login-sub">Admin Panel — Connexion</div>
+    <input class="admin-login-input" type="password" id="adminPassword" placeholder="Mot de passe..." onkeydown="if(event.key==='Enter')checkAdminPass()" />
+    <button class="admin-login-btn" onclick="checkAdminPass()">Connexion</button>
+    <div class="admin-login-error" id="adminLoginError">❌ Mot de passe incorrect</div>
+  </div>
+</div>
+
+<!-- ═══ ADMIN PANEL ═══ -->
+<div class="admin-overlay" id="adminPanel">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <span class="admin-title">⚙️ Admin Panel</span>
+      <button class="admin-close" onclick="closeAdminPanel()">✕ Fermer</button>
+    </div>
+
+    <!-- COMMANDES -->
+    <div class="admin-section">
+      <div class="admin-section-title">📦 Commandes récentes</div>
+      <div class="admin-orders" id="adminOrdersList">
+        <div class="admin-empty">Aucune commande pour l'instant</div>
+      </div>
+    </div>
+
+    <!-- ZALANDO -->
+    <div class="admin-section">
+      <div class="admin-section-title">🛍️ Zalando — Variants</div>
+      <div class="admin-product">
+        <div class="admin-product-name">Zalando.de 100% Orders / Balance</div>
+        <div id="adminZalandoVariants"></div>
+      </div>
+    </div>
+
+    <!-- FUHRERPALS -->
+    <div class="admin-section">
+      <div class="admin-section-title">💳 FuhrerPals — Variants</div>
+      <div class="admin-product">
+        <div class="admin-product-name">FuhrerPals (PayPal)</div>
+        <div id="adminPPVariants"></div>
+      </div>
+    </div>
+
+    <!-- PAYBACK -->
+    <div class="admin-section">
+      <div class="admin-section-title">🎯 Payback — Variants</div>
+      <div class="admin-product">
+        <div class="admin-product-name">Payback.de W/Points</div>
+        <div id="adminPBVariants"></div>
+      </div>
+    </div>
+
+    <!-- GMX -->
+    <div class="admin-section">
+      <div class="admin-section-title">📧 GMX FA — Stock</div>
+      <div class="admin-product">
+        <div class="admin-product-name">GMX FA</div>
+        <div class="admin-variant-row">
+          <div class="admin-variant-info">
+            <div class="admin-variant-name">GMX FA</div>
+            <div class="admin-variant-price">€4.00</div>
+          </div>
+          <input class="admin-stock-input" type="number" id="gmxStockInput" value="1" min="0" />
+          <div class="admin-toggle-wrap">
+            <label class="admin-toggle">
+              <input type="checkbox" id="gmxToggle" checked onchange="updateGMXStock()" />
+              <span class="admin-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="admin-save-btn" onclick="saveAdminChanges()">💾 Sauvegarder les modifications</button>
+    <div id="adminSaveMsg" style="display:none;text-align:center;color:#4caf50;font-size:0.85rem;margin-top:12px;">✓ Modifications sauvegardées !</div>
+  </div>
+</div>
+
+</body>
+</html>
